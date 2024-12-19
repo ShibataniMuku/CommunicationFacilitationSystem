@@ -16,7 +16,11 @@ final class BrowsingChatTableViewController: UITableViewController {
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
     private var sendButton: UIBarButtonItem!
+    
+    // 自分の特徴を表すキーワードを登録
+    private let myKeywords = ["apple", "orange", "grape"]
 
+    // 画面の読み込みが終わったときに実行される
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -28,8 +32,12 @@ final class BrowsingChatTableViewController: UITableViewController {
         let peerID = MCPeerID(displayName: UIDevice.current.name)
         session = MCSession(peer: peerID)
         session.delegate = self
-
-        advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+        
+        // discoveryInfoにキーワードを追加
+        let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ",")]
+        
+        // 広告を開始する
+        advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
         advertiser.delegate = self
         advertiser.startAdvertisingPeer()
     }
@@ -147,6 +155,26 @@ extension BrowsingChatTableViewController: MCBrowserViewControllerDelegate {
     }
 
     func browserViewController(_ browserViewController: MCBrowserViewController, shouldPresentNearbyPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) -> Bool {
-        return true
+        // DiscoveryInfoからキーワード情報を取得
+        guard let discoveredKeywordsString = info?["myKeywords"] else {
+            print("キーワード情報が見つかりません: \(peerID.displayName)")
+            return false // キーワードがない場合はリストに表示しない
+        }
+
+        // 発見したデバイスのキーワードを分割
+        let discoveredKeywords = discoveredKeywordsString.components(separatedBy: ",")
+
+        // 自分のキーワードと発見したキーワードの一致チェック
+        let commonKeywords = myKeywords.filter { discoveredKeywords.contains($0) }
+
+        if !commonKeywords.isEmpty {
+            // 一致するキーワードがある場合のみリストに表示
+            print("一致キーワード: \(commonKeywords) - \(peerID.displayName)")
+            return true
+        } else {
+            // 一致するキーワードがない場合はリストに表示しない
+            print("キーワード不一致: \(peerID.displayName)")
+            return false
+        }
     }
 }
