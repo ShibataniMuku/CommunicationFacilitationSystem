@@ -1,13 +1,13 @@
 //
-//  MultipeerConnectivitySampleUITests.swift
-//  MultipeerConnectivitySampleUITests
+//  CommunicationFacilitationSystemUITests.swift
+//  CommunicationFacilitationSystemUITests
 //
-//  Created by makoto on 2021/02/19.
+//  Created by 柴谷 椋 on 2024/12/19.
 //
 
 import XCTest
 
-class MultipeerConnectivitySampleUITests: XCTestCase {
+final class CommunicationFacilitationSystemUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -22,17 +22,18 @@ class MultipeerConnectivitySampleUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    @MainActor
     func testExample() throws {
         // UI tests must launch the application that they test.
         let app = XCUIApplication()
         app.launch()
 
-        // Use recording to get started writing UI tests.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 
+    @MainActor
     func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, *) {
+        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
             // This measures how long it takes to launch your application.
             measure(metrics: [XCTApplicationLaunchMetric()]) {
                 XCUIApplication().launch()
