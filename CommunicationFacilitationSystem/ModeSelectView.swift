@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MultipeerConnectivity
+import NearbyInteraction
 
 struct ModeSelectView: View {
     @StateObject private var viewModel = BrowsingChatViewModel()
@@ -72,6 +73,10 @@ struct ModeSelectView: View {
 final class BrowsingChatViewModel: NSObject, ObservableObject {
     @Published var messages: [String] = []
     @Published var isSendEnabled = false
+    @State private var showingArrowView = false
+    
+    var niSession: NISession?
+    var myTokenData: Data?
 
     private let serviceType = "browsing-chat"
     private var session: MCSession!
@@ -84,6 +89,7 @@ final class BrowsingChatViewModel: NSObject, ObservableObject {
     override init() {
         super.init()
         setupMultipeerConnectivity()
+        setupNearbyInteraction()
     }
 
     func setupMultipeerConnectivity() {
@@ -94,6 +100,24 @@ final class BrowsingChatViewModel: NSObject, ObservableObject {
         let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ",")]
         advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
         advertiser.delegate = self
+    }
+    
+    func setupNearbyInteraction() {
+        // Check if Nearby Interaction is supported.
+        guard NISession.isSupported else {
+            print("This device doesn't support Nearby Interaction.")
+            return
+        }
+        
+        // Set the NISession.
+        niSession = NISession()
+//        niSession?.delegate = self
+        
+        // Create a token and change Data type.
+        guard let token = niSession?.discoveryToken else {
+            return
+        }
+        myTokenData = try! NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true)
     }
 
     func startAdvertising() {
@@ -108,17 +132,17 @@ final class BrowsingChatViewModel: NSObject, ObservableObject {
     func sendMessage() {
         let message = "\(peerID.displayName)からのメッセージ"
         do {
-            // 相手にデータを送信する
-            try session.send(message.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
-            
-            
-            
-            
-            
-            addMessage(message)
+            // 送信可能なデバイスがいる場合にトークンを送信
+            if !session.connectedPeers.isEmpty {
+                try session.send(myTokenData!, toPeers: session.connectedPeers, with: .reliable)
+                print("Discovery token sent successfully.")
+            } else {
+                print("No connected peers to send the token.")
+            }
         } catch {
-            print("Send message failed: \(error.localizedDescription)")
+            print("Failed to send discovery token: \(error.localizedDescription)")
         }
+
     }
 
     func browse() {
@@ -141,7 +165,12 @@ extension BrowsingChatViewModel: MCSessionDelegate {
         let message: String
         switch state {
         case .connected:
+            print("接続されました")
             message = "\(peerID.displayName)が接続されました"
+            
+            // メッセージを送信する
+            sendMessage()
+            
             DispatchQueue.main.async {
                 // 接続されたデバイスが1台以上になったらブラウザを閉じる
                 if !session.connectedPeers.isEmpty {
@@ -164,16 +193,18 @@ extension BrowsingChatViewModel: MCSessionDelegate {
 
     // データを受信したときに呼ばれる
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        guard let message = String(data: data, encoding: .utf8) else { return }
+        print("データを受信しました")
+
+        guard let peerDiscoverToken = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NIDiscoveryToken.self, from: data) else {
+            print("Failed to decode data.")
+            return }
         
-        // 受け取ったデータ（String）を元に，ここで何かする
-        
-        
-        
-        
-        
-        // サンプルプロジェクトのときは，以下のコードで，受け取ったデータをメッセージとして表示していた
-        addMessage(message)
+        // 相手のデバイスからトークンが送られてきたら，矢印の画面へ遷移する
+        let partnerConfig = NINearbyPeerConfiguration(peerToken: peerDiscoverToken)
+        showingArrowView = true
+        NavigationLink(destination: ArrowView(config: partnerConfig, niSession: niSession), isActive: $showingArrowView) {
+            EmptyView()
+        }
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
