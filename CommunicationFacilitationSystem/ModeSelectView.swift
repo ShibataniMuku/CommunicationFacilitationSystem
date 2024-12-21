@@ -34,7 +34,7 @@ struct ModeSelectView: View {
                     .environment(\.editMode, .constant(.active))
                                         
                     NavigationLink(destination: ArrowView()){
-                        Text("探しに出かける")
+                        Text("周囲を見わたす")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
                                    height: UIScreen.main.bounds.size.width / 6 * 1)

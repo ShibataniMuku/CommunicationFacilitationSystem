@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LaunchView: View {
+    @AppStorage("MyName") var myName: String = ""
+    
     var body: some View {
         NavigationView{
             ZStack{

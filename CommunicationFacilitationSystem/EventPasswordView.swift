@@ -26,7 +26,7 @@ struct EventPasswordView: View {
                     TextField("会場の合言葉", text: $password)
                 }
                 
-                NavigationLink(destination: ModeSelectView()){
+                NavigationLink(destination: ArrowView()){
                     Text("入力完了")
                         .fontWeight(.medium)
                         .frame(width: UIScreen.main.bounds.size.width / 6 * 4,

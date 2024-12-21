@@ -5,6 +5,7 @@ import NearbyInteraction
 struct ArrowView: View {
     @StateObject private var viewModel = ArrowViewModel()
     @State private var selectedPeer: MCPeerID? = nil
+    @State var isShowDialog = false
 
     var body: some View {
         VStack {
@@ -30,17 +31,41 @@ struct ArrowView: View {
                         .font(.headline)
                 }
             } else {
-                // デバイスリストの表示
-                Text("接続可能なデバイス")
-                    .font(.headline)
-                    .padding()
-
-                List(viewModel.availablePeers, id: \.self) { peer in
-                    Button(action: {
-                        selectedPeer = peer
-                        viewModel.connectToPeer(peer)
-                    }) {
-                        Text(peer.displayName)
+                NavigationView{
+                    ZStack{
+                        Color(.systemGroupedBackground)
+                            .ignoresSafeArea()
+                        
+                        VStack{
+                            Text("あなたと気が合いそうな周囲の人が表示されます\nタップして会いに行ってみましょう")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                            
+                            List(viewModel.availablePeers, id: \.self) { peer in
+                                Button(action: {
+                                    isShowDialog = true
+                                }) {
+                                    Text(peer.displayName)
+                                        .foregroundColor(.black)
+                                }.confirmationDialog("接続の確認", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                                    Button("会いに行く"){
+                                        selectedPeer = peer
+                                        viewModel.connectToPeer(peer)
+                                    }
+                                    Button("キャンセル", role: .cancel){
+                                        print("キャンセルしました")
+                                    }
+                                    
+                                }, message: {
+                                    Text("\(peer.displayName)さんに会いに行きますか")
+                                })
+                            }
+                            .navigationTitle("見わたし中")
+                            .scrollContentBackground(.hidden)
+                            .environment(\.editMode, .constant(.active))
+                        }
                     }
                 }
             }
@@ -66,11 +91,13 @@ final class ArrowViewModel: NSObject, ObservableObject {
     private var connectedPeerToken: NIDiscoveryToken?
 
     private let serviceType = "browsing-chat"
-    private let peerID = MCPeerID(displayName: UIDevice.current.name)
+    @AppStorage("MyName") var myName: String = ""
+    private var peerID = MCPeerID(displayName: UIDevice.current.name)
     private let myKeywords = ["apple", "orange", "grape"]
 
     override init() {
         super.init()
+        peerID = MCPeerID(displayName: myName)
         setupMultipeerConnectivity()
         setupNearbyInteraction()
     }

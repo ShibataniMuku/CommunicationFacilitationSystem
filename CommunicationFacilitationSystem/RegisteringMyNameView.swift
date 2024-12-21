@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RegisteringMyNameView: View {
-    @State var name: String = ""
+    @AppStorage("MyName") var name: String = ""
 
     var body: some View {
         ZStack {
