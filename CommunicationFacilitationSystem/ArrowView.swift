@@ -37,7 +37,7 @@ struct ArrowView: View {
                             .ignoresSafeArea()
                         
                         VStack{
-                            Text("あなたと気が合いそうな周囲の人が表示されます\nタップして会いに行ってみましょう")
+                            Text("あなたと気が合いそうな人が表示されます\nタップして会いに行ってみましょう")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -62,7 +62,7 @@ struct ArrowView: View {
                                     Text("\(peer.displayName)さんに会いに行きますか")
                                 })
                             }
-                            .navigationTitle("見わたし中")
+                            .navigationTitle("散策中")
                             .scrollContentBackground(.hidden)
                             .environment(\.editMode, .constant(.active))
                         }
@@ -95,6 +95,8 @@ final class ArrowViewModel: NSObject, ObservableObject {
     private let serviceType = "browsing-chat"
     @AppStorage("MyName") var myName: String = ""
     private var peerID = MCPeerID(displayName: UIDevice.current.name)
+    
+    private var selectionValues: Array<String> = []
     private let myKeywords = ["apple", "orange", "grape"]
 
     override init() {

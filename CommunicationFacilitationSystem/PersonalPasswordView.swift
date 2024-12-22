@@ -27,16 +27,21 @@ struct PersonalPasswordView: View {
                 }
                 
                 NavigationLink(destination: ModeSelectView()){
-                    Text("入力完了")
-                        .fontWeight(.medium)
-                        .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                               height: UIScreen.main.bounds.size.width / 6 * 1)
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(.infinity)
+                    Button{
+                        
+                    } label: {
+                        Text("入力完了")
+                            .fontWeight(.medium)
+                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                            .background(password != "" ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(.infinity)
+                    }
+                    .padding()
+                    .disabled(password != "")
                 }
             }
-            .padding()
             .navigationTitle("出会えた確認")
         }
     }

@@ -7,7 +7,16 @@ struct KeywordGroups: Identifiable {
     let keywords: [String]
 }
 
-// メインビュー
+struct Keyword: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+
+    init(name: String) {
+        self.id = UUID()
+        self.name = name
+    }
+}
+
 struct RegisteringKeywordView: View {
     let sampleKeywordGroups = [
         KeywordGroups(groupName: "スポーツ", keywords: ["サッカー", "野球", "テニス", "卓球", "バレー", "バスケットボール"]),
@@ -16,7 +25,6 @@ struct RegisteringKeywordView: View {
     ]
     
     @State private var selectionValues: Set<String> = []
-//    let keywordGroups: [KeywordGroups]
 
     var body: some View {
         ZStack{
@@ -41,17 +49,22 @@ struct RegisteringKeywordView: View {
                 .scrollContentBackground(.hidden)
                 .environment(\.editMode, .constant(.active))
                 
-                NavigationLink(destination: EventPasswordView()){
-                    Text("選択完了")
-                        .fontWeight(.medium)
-                        .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                               height: UIScreen.main.bounds.size.width / 6 * 1)
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(.infinity)
+                NavigationLink(destination: ModeSelectView()){
+                    Button{
+                        
+                    } label: {
+                        Text("選択完了")
+                            .fontWeight(.medium)
+                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                            .background(selectionValues.count != 0 ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(.infinity)
+                    }
+                    .padding()
+                    .disabled(selectionValues.count != 0)
                 }
             }
-            .padding()
             .navigationTitle("あなたの特徴")
         }
     }

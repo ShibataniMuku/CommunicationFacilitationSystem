@@ -20,26 +20,33 @@ struct LaunchView: View {
                     Spacer()
                     
                     NavigationLink(destination: RegisteringMyNameView()){
-                        Text("新しくはじめる")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
-                            .background(.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
+                        Button{
+                             
+                        } label: {
+                            Text("新しくはじめる")
+                                .fontWeight(.medium)
+                                .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                .background(.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(.infinity)
+                        }
                     }
                     
-                    NavigationLink(destination: EventPasswordView()){
-                        Text("前回と同じ設定ではじめる")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
-                            .background(.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
+                    NavigationLink(destination: ModeSelectView()){
+                        Button{
+                            
+                        } label: {
+                            Text("前回と同じ設定ではじめる")
+                                .fontWeight(.medium)
+                                .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                .background(.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(.infinity)
+                        }
                     }
                 }
-                .padding()
             }
         }
     }

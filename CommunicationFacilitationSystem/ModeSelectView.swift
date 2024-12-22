@@ -10,8 +10,8 @@ import MultipeerConnectivity
 import NearbyInteraction
 
 struct ModeSelectView: View {
-//    @StateObject private var viewModel = BrowsingChatViewModel()
-    
+    @State var password: String = ""
+
     var body: some View {
         NavigationView{
             ZStack{
@@ -24,23 +24,25 @@ struct ModeSelectView: View {
                         .foregroundColor(.secondary)
                         .padding()
                     
-                    List {
-                        Section(header: Text("これまでに出会った人")) {
-                            Text("aaaaa")
-                        }
+                    Form{
+                        TextField("会場の合言葉", text: $password)
                     }
                     .navigationTitle("周囲を見わたす")
-                    .scrollContentBackground(.hidden)
-                    .environment(\.editMode, .constant(.active))
                                         
                     NavigationLink(destination: ArrowView()){
-                        Text("周囲を見わたす")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
-                            .background(.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
+                        Button{
+                            
+                        } label: {
+                            Text("散策に出かける")
+                                .fontWeight(.medium)
+                                .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                .background(password != "" ? Color.blue : Color.gray)
+                                .foregroundColor(.white)
+                                .cornerRadius(.infinity)
+                        }
+                        .padding()
+                        .disabled(password != "")
                     }
                     
 //                    Button(action: viewModel.browse) {
@@ -54,12 +56,6 @@ struct ModeSelectView: View {
 //                    }
 //                    .padding()
                 }
-//                .onAppear {
-//                    viewModel.startAdvertising()
-//                }
-//                .onDisappear {
-//                    viewModel.stopAdvertising()
-//                }
             }
         }
         .navigationBarBackButtonHidden(true)

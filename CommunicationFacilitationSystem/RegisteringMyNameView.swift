@@ -20,16 +20,21 @@ struct RegisteringMyNameView: View {
                 }
 
                 NavigationLink(destination: RegisteringKeywordView()) {
-                    Text("入力完了")
-                        .fontWeight(.medium)
-                        .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                               height: UIScreen.main.bounds.size.width / 6 * 1)
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(.infinity)
+                    Button{
+                        
+                    } label: {
+                        Text("入力完了")
+                            .fontWeight(.medium)
+                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                            .background(name != "" ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(.infinity)
+                    }
+                    .padding()
+                    .disabled(name != "")
                 }
             }
-            .padding()
             .navigationTitle("あなたの名前") // ここでタイトルを設定
         }
     }
