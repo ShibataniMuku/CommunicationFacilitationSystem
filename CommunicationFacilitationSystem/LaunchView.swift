@@ -31,6 +31,7 @@ struct LaunchView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(.infinity)
                         }
+                        .disabled(true)
                     }
                     
                     NavigationLink(destination: ModeSelectView()){
@@ -45,6 +46,7 @@ struct LaunchView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(.infinity)
                         }
+                        .disabled(true)
                     }
                 }
             }

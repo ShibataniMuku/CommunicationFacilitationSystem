@@ -6,30 +6,56 @@ struct ArrowView: View {
     @StateObject private var viewModel = ArrowViewModel()
     @State private var selectedPeer: MCPeerID? = nil
     @State var isShowDialog = false
+    @State var isActivePersonalPasswordView = false
 
     var body: some View {
+        NavigationLink(destination: PersonalPasswordView(),
+                       isActive: $isActivePersonalPasswordView) {
+                        EmptyView()
+        }
+        
         VStack {
             if let selectedPeer = selectedPeer {
-                // Nearby Interaction の距離と方向を表示
-                if let distance = viewModel.distance {
-                    Text("距離: \(distance, specifier: "%.2f") m")
-                        .font(.title)
-                } else {
-                    Text("距離: 計測中")
-                        .font(.title)
-                }
 
-                if let direction = viewModel.direction {
-                    VStack {
-                        Text("方向 X: \(direction.x, specifier: "%.2f")")
-                        Text("方向 Y: \(direction.y, specifier: "%.2f")")
-                        Text("方向 Z: \(direction.z, specifier: "%.2f")")
+//                if let direction = viewModel.direction {
+//                    VStack {
+//                        Text("方向 X: \(direction.x, specifier: "%.2f")")
+//                        Text("方向 Y: \(direction.y, specifier: "%.2f")")
+//                        Text("方向 Z: \(direction.z, specifier: "%.2f")")
+//                    }
+//                    .font(.headline)
+//                } else {
+//                    Text("方向: 計測中")
+//                        .font(.headline)
+//                }
+                
+                ZStack {
+                    Color(.systemGroupedBackground)
+                        .ignoresSafeArea()
+                    
+                    VStack(spacing: 70){
+                        if let distance = viewModel.distance {
+                            Text("\(distance, specifier: "%.2f") m")
+                                .font(.largeTitle)
+                                .bold()
+                        } else {
+                            Text("距離計測中")
+                                .font(.title)
+                        }
+                        
+                        Image(systemName: "arrowshape.up.fill") // システムアイコンの例
+                            .resizable() // サイズ変更可能にする
+                            .scaledToFit()
+                            .frame(width: UIScreen.main.bounds.size.width / 1.4)
+                            .foregroundColor(.green)
                     }
-                    .font(.headline)
-                } else {
-                    Text("方向: 計測中")
-                        .font(.headline)
+                    .onChange(of: viewModel.distance) { newValue in
+                        if let distance = newValue, distance <= 0.3 {
+                            isActivePersonalPasswordView = true // 条件を満たしたら遷移フラグを立てる
+                        }
+                    }
                 }
+                
             } else {
                 NavigationView{
                     ZStack{

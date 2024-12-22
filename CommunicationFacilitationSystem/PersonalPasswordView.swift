@@ -11,39 +11,42 @@ struct PersonalPasswordView: View {
     @State var password: String = ""
     
     var body: some View {
-        ZStack{
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-            
-            VStack{
-                Text("パスワードをお互いに交換してください")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding()
+        NavigationView{
+            ZStack{
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
                 
-                Form{
-                    TextField("相手のパスワード", text: $password)
-                }
-                
-                NavigationLink(destination: ModeSelectView()){
-                    Button{
-                        
-                    } label: {
-                        Text("入力完了")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
-                            .background(password != "" ? Color.blue : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
+                VStack{
+                    Text("パスワードをお互いに交換してください")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                    
+                    Form{
+                        TextField("相手のパスワード", text: $password)
                     }
-                    .padding()
-                    .disabled(password != "")
+                    
+                    NavigationLink(destination: ModeSelectView()){
+                        Button{
+                            
+                        } label: {
+                            Text("入力完了")
+                                .fontWeight(.medium)
+                                .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                .background(password != "" ? Color.blue : Color.gray)
+                                .foregroundColor(.white)
+                                .cornerRadius(.infinity)
+                        }
+                        .padding()
+                        .disabled(password != "")
+                    }
                 }
+                .navigationTitle("出会えた確認")
             }
-            .navigationTitle("出会えた確認")
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
