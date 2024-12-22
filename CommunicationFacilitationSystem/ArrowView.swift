@@ -89,7 +89,9 @@ final class ArrowViewModel: NSObject, ObservableObject {
     private var browser: MCNearbyServiceBrowser!
     private var niSession: NISession?
     private var connectedPeerToken: NIDiscoveryToken?
-
+    
+    var myTokenData: Data?
+    
     private let serviceType = "browsing-chat"
     @AppStorage("MyName") var myName: String = ""
     private var peerID = MCPeerID(displayName: UIDevice.current.name)
@@ -110,6 +112,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
         let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ",")]
         advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
         advertiser.delegate = self
+        advertiser.startAdvertisingPeer()
 
         browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         browser.delegate = self
@@ -124,6 +127,12 @@ final class ArrowViewModel: NSObject, ObservableObject {
 
         niSession = NISession()
         niSession?.delegate = self
+        
+        // Create a token and change Data type.
+        guard let token = niSession?.discoveryToken else {
+            return
+        }
+        myTokenData = try! NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true)
     }
 
     // ブラウズ開始
@@ -143,45 +152,91 @@ final class ArrowViewModel: NSObject, ObservableObject {
     // デバイスに接続
     func connectToPeer(_ peer: MCPeerID) {
         print("デバイスに接続")
-        guard let myToken = niSession?.discoveryToken else { return }
-        let tokenData = try! NSKeyedArchiver.archivedData(withRootObject: myToken, requiringSecureCoding: true)
+        guard let myToken = niSession?.discoveryToken else {
+            print("Nearby Interactionのトークンが取得できません")
+            return
+        }
+        
+        browser.invitePeer(peer, to: session, withContext: nil, timeout: 0) // 接続を招待（要求）する
 
+        let tokenData: Data
         do {
-            try session.send(tokenData, toPeers: [peer], with: .reliable)
-            print("Sent discovery token to \(peer.displayName).")
+            tokenData = try NSKeyedArchiver.archivedData(withRootObject: myToken, requiringSecureCoding: true)
         } catch {
-            print("Failed to send token: \(error.localizedDescription)")
+            print("トークンデータのシリアライズに失敗しました: \(error.localizedDescription)")
+            return
+        }
+
+        if session.connectedPeers.contains(peer) {
+            do {
+                try session.send(tokenData, toPeers: [peer], with: .reliable)
+                print("トークンを送信しました: \(peer.displayName)")
+            } catch {
+                print("トークン送信に失敗しました: \(error.localizedDescription)")
+            }
+        } else {
+            print("\(peer.displayName)はまだ接続されていません")
         }
     }
+
 }
 
 // MARK: - MCSessionDelegate
 extension ArrowViewModel: MCSessionDelegate {
+    // デバイスの接続状況が変化したときに呼び出される
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         DispatchQueue.main.async {
             switch state {
             case .connected:
-                print("\(peerID.displayName) connected.")
+                print("\(peerID.displayName)が接続されました")
+                // 接続完了後にトークン送信可能
+                do {
+                    guard let tokenData = self.myTokenData else {
+                        print("Error: myTokenData is nil.")
+                        return
+                    }
+                    
+                    try session.send(tokenData, toPeers: session.connectedPeers, with: .reliable)
+                } catch {
+                    print(error.localizedDescription)
+                }
+                
+            case .connecting:
+                print("\(peerID.displayName)が接続中です")
             case .notConnected:
-                print("\(peerID.displayName) disconnected.")
-            default:
-                break
+                print("\(peerID.displayName)が切断されました")
+            @unknown default:
+                print("\(peerID.displayName)が未知の状態です")
             }
         }
     }
 
+    // 他のデバイスからデータを受信したときに呼びだされる
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        guard let discoveryToken = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NIDiscoveryToken.self, from: data) else {
-            print("Failed to decode discovery token.")
-            return
-        }
+        do {
+            guard let discoveryToken = try NSKeyedUnarchiver.unarchivedObject(ofClass: NIDiscoveryToken.self, from: data) else {
+                print("トークンのデコードに失敗しました")
+                return
+            }
 
-        connectedPeerToken = discoveryToken
-        if let token = connectedPeerToken {
-            let config = NINearbyPeerConfiguration(peerToken: token)
-            niSession?.run(config)
+            // 受け取った相手のトークンをもとに，NearbyInteractionセッションを開始
+            connectedPeerToken = discoveryToken
+            if let token = connectedPeerToken {
+                let config = NINearbyPeerConfiguration(peerToken: token)
+                
+                // 新しいセッションを開始する
+                if niSession == nil {
+                    setupNearbyInteraction()
+                }
+                
+                niSession?.run(config)
+                print("Nearby Interactionセッションを開始しました")
+            }
+        } catch {
+            print("トークンデータの復元に失敗しました: \(error.localizedDescription)")
         }
     }
+
 
     func session(_: MCSession, didReceive _: InputStream, withName _: String, fromPeer _: MCPeerID) {}
     func session(_: MCSession, didStartReceivingResourceWithName _: String, fromPeer _: MCPeerID, with _: Progress) {}
@@ -190,7 +245,9 @@ extension ArrowViewModel: MCSessionDelegate {
 
 // MARK: - MCNearbyServiceAdvertiserDelegate
 extension ArrowViewModel: MCNearbyServiceAdvertiserDelegate {
+    // 検索され接続を要求されたときに呼び出される
     func advertiser(_: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext _: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        print("接続を要求されました: \(peerID.displayName)")
         invitationHandler(true, session)
     }
 }
@@ -201,11 +258,12 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
     // 端末を発見した時に呼ばれる
     func browser(_: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         print("端末を発見した: \(peerID.displayName)")
+                
         DispatchQueue.main.async {
             guard let keywords = info?["myKeywords"]?.split(separator: ",").map(String.init) else { return }
             let commonKeywords = self.myKeywords.filter { keywords.contains($0) }
             if !commonKeywords.isEmpty {
-                self.availablePeers.append(peerID)
+                self.availablePeers.append(peerID) // 見つけた端末リストに追加
             }
         }
     }
