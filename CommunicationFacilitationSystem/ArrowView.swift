@@ -6,17 +6,21 @@ struct ArrowView: View {
     @StateObject private var viewModel = ArrowViewModel()
     @State private var selectedPeer: MCPeerID? = nil
     @State var isShowDialog = false
-    @State var isActivePersonalPasswordView = false
+    @State var isActiveCompleteMatchView = false
 
     var body: some View {
-        NavigationLink(destination: PersonalPasswordView(),
-                       isActive: $isActivePersonalPasswordView) {
+        NavigationLink(destination: CompleteMatchView(),
+                       isActive: $isActiveCompleteMatchView) {
+                        EmptyView()
+        }
+        
+        NavigationLink(destination: ConnectionRequestedView(arrowViewModel: viewModel),
+                       isActive: $viewModel.isConnectionRequested) {
                         EmptyView()
         }
         
         VStack {
             if let selectedPeer = selectedPeer {
-
 //                if let direction = viewModel.direction {
 //                    VStack {
 //                        Text("方向 X: \(direction.x, specifier: "%.2f")")
@@ -29,33 +33,75 @@ struct ArrowView: View {
 //                        .font(.headline)
 //                }
                 
-                ZStack {
+                ZStack{
                     Color(.systemGroupedBackground)
                         .ignoresSafeArea()
                     
-                    VStack(spacing: 70){
+                    VStack(){
+                        Spacer()
+                        
                         if let distance = viewModel.distance {
-                            Text("\(distance, specifier: "%.2f") m")
-                                .font(.largeTitle)
-                                .bold()
+                            if distance <= 0.5 {
+                                Text("すぐ近くにいます")
+                                    .font(.largeTitle)
+                                    .bold()
+                            } else {
+                                Text("\(distance, specifier: "%.2f") m")
+                                    .font(.largeTitle)
+                                    .bold()
+                            }
+
                         } else {
                             Text("距離計測中")
-                                .font(.title)
+                                .font(.largeTitle)
+                                .bold()
                         }
                         
+                        Spacer()
+                            
                         Image(systemName: "arrowshape.up.fill") // システムアイコンの例
                             .resizable() // サイズ変更可能にする
                             .scaledToFit()
                             .frame(width: UIScreen.main.bounds.size.width / 1.4)
                             .foregroundColor(.green)
-                    }
-                    .onChange(of: viewModel.distance) { newValue in
-                        if let distance = newValue, distance <= 0.3 {
-                            isActivePersonalPasswordView = true // 条件を満たしたら遷移フラグを立てる
+                        
+                        Spacer()
+                    
+                        NavigationLink(destination: RegisteringKeywordView()) {
+                            Button{
+                                isActiveCompleteMatchView = true
+                            } label: {
+                                Text("出会えた")
+                                    .fontWeight(.medium)
+                                    .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                           height: UIScreen.main.bounds.size.width / 6 * 1)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(.infinity)
+                            }
+                        }
+                        
+                        NavigationLink(destination: ModeSelectView()) {
+                            Text("会うのをやめる")
+                                .fontWeight(.medium)
+                                .foregroundColor(.blue)
+                                .padding(.vertical)
+                                .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                                    Button("切断する"){
+                                        print("通信を切断しました")
+                                    }
+                                    Button("キャンセル", role: .cancel){
+
+                                        print("キャンセルしました")
+                                    }
+                                    
+                                }, message: {
+                                    Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
+                                })
                         }
                     }
+                    .padding()
                 }
-                
             } else {
                 NavigationView{
                     ZStack{
@@ -63,7 +109,7 @@ struct ArrowView: View {
                             .ignoresSafeArea()
                         
                         VStack{
-                            Text("あなたと気が合いそうな人が表示されます\nタップして会いに行ってみましょう")
+                            Text("あなたと気が合いそうな人が表示されます。\nタップして会いに行ってみましょう")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -75,7 +121,7 @@ struct ArrowView: View {
                                 }) {
                                     Text(peer.displayName)
                                         .foregroundColor(.black)
-                                }.confirmationDialog("接続の確認", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                                }.confirmationDialog("\(peer.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                     Button("会いに行く"){
                                         selectedPeer = peer
                                         viewModel.connectToPeer(peer)
@@ -85,7 +131,7 @@ struct ArrowView: View {
                                     }
                                     
                                 }, message: {
-                                    Text("\(peer.displayName)さんに会いに行きますか")
+                                    Text("通信を開始すると、相手までの距離と方向が表示されます。")
                                 })
                             }
                             .navigationTitle("散策中")
@@ -109,6 +155,8 @@ final class ArrowViewModel: NSObject, ObservableObject {
     @Published var availablePeers: [MCPeerID] = []
     @Published var distance: Float?
     @Published var direction: simd_float3?
+    @Published var isConnectionRequested = false; // 接続を要求された
+    @Published var isAdvertiser = false; // 接続を要求される側
 
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
@@ -163,14 +211,14 @@ final class ArrowViewModel: NSObject, ObservableObject {
         myTokenData = try! NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true)
     }
 
-    // ブラウズ開始
+    // 周辺のユーザの探索開始
     func startBrowsing() {
         print("ブラウズ開始")
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
     }
 
-    // ブラウズ停止
+    // 周辺のユーザの探索停止
     func stopBrowsing() {
         advertiser.stopAdvertisingPeer()
         browser.stopBrowsingForPeers()
@@ -206,7 +254,6 @@ final class ArrowViewModel: NSObject, ObservableObject {
             print("\(peer.displayName)はまだ接続されていません")
         }
     }
-
 }
 
 // MARK: - MCSessionDelegate
@@ -230,6 +277,9 @@ extension ArrowViewModel: MCSessionDelegate {
                 }
                 
             case .connecting:
+                if self.isAdvertiser{
+                    self.isConnectionRequested = true
+                }
                 print("\(peerID.displayName)が接続中です")
             case .notConnected:
                 print("\(peerID.displayName)が切断されました")
@@ -277,6 +327,7 @@ extension ArrowViewModel: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext _: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         print("接続を要求されました: \(peerID.displayName)")
         invitationHandler(true, session)
+        self.isAdvertiser = true
     }
 }
 
@@ -315,7 +366,7 @@ extension ArrowViewModel: NISessionDelegate {
         guard let object = nearbyObjects.first else { return }
         DispatchQueue.main.async {
             self.distance = object.distance
-            self.direction = object.direction
+            self.direction = object.__direction
         }
     }
 
