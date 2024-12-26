@@ -1,34 +1,34 @@
-//
-//  CompleteMatchView.swift
-//  CommunicationFacilitationSystem
-//
-//  Created by 柴谷 椋 on 2024/12/23.
-//
-
 import SwiftUI
 
 struct CompleteMatchView: View {
-    @State var isActiveModeSelectView: Bool = false
-    
     var body: some View {
-        NavigationLink(destination: ModeSelectView(),
-                       isActive: $isActiveModeSelectView) {
-                        EmptyView()
-        }
-        
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
             VStack(){
-                Text("デバイスを近づける")
+                Text("出会いました")
                     .font(.largeTitle)
                     .bold()
                     .padding(.vertical)
-                Text("デバイス同士を近づけて、出会ったことを確定させましょう。")
+                Text("出会うことができました。")
                     .padding(.vertical)
                     .multilineTextAlignment(.center)
                 Spacer()
+                
+                NavigationLink(destination: RegisteringKeywordView()) {
+                    Button{
+                        
+                    } label: {
+                        Text("ホームへ戻る")
+                            .fontWeight(.medium)
+                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(.infinity)
+                    }
+                }
             }
             .padding()
         }
