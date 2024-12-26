@@ -46,6 +46,7 @@ struct FindingYouView: View {
                             .padding(.vertical)
                             .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                 Button("切断する"){
+                                    viewModel.stopSession() // NearbyInteractionを停止
                                     isActiveModeSelectView = true
                                     print("通信を切断しました")
                                 }

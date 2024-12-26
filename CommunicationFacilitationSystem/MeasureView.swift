@@ -53,6 +53,7 @@ struct MeasureView: View {
                             .padding(.vertical)
                             .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                 Button("切断する"){
+                                    viewModel.stopSession() // NearbyInteractionを停止
                                     print("通信を切断しました")
                                 }
                                 Button("キャンセル", role: .cancel){

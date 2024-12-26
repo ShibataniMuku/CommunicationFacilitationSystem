@@ -62,6 +62,11 @@ final class ArrowViewModel: NSObject, ObservableObject {
         }
         myTokenData = try! NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true)
     }
+    
+    // NearbyInteractionを停止する
+    func stopSession(){
+        niSession?.invalidate()
+    }
 
     // 周辺のユーザの探索開始
     func startBrowsing() {
