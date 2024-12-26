@@ -1,10 +1,3 @@
-//
-//  CommunicationFacilitationSystemApp.swift
-//  CommunicationFacilitationSystem
-//
-//  Created by 柴谷 椋 on 2024/12/19.
-//
-
 import SwiftUI
 import SwiftData
 

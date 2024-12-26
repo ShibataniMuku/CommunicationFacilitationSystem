@@ -26,7 +26,7 @@ struct RegisteringMyNameView: View {
                         Text("入力完了")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                                   height: 60)
                             .background(name != "" ? Color.blue : Color.gray)
                             .foregroundColor(.white)
                             .cornerRadius(.infinity)
@@ -35,13 +35,13 @@ struct RegisteringMyNameView: View {
                     .disabled(name != "")
                 }
             }
-            .navigationTitle("あなたの名前") // ここでタイトルを設定
+            .navigationTitle("あなたの名前")
         }
     }
 }
 
 #Preview {
-    NavigationView { // 外部でNavigationViewを使用
+    NavigationView {
         RegisteringMyNameView()
     }
 }

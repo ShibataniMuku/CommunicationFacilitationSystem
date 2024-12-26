@@ -1,10 +1,3 @@
-//
-//  LaunchView.swift
-//  CommunicationFacilitationSystem
-//
-//  Created by 柴谷 椋 on 2024/12/20.
-//
-
 import SwiftUI
 
 struct LaunchView: View {
@@ -26,7 +19,7 @@ struct LaunchView: View {
                             Text("新しくはじめる")
                                 .fontWeight(.medium)
                                 .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                       height: 60)
                                 .background(.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(.infinity)
@@ -41,7 +34,7 @@ struct LaunchView: View {
                             Text("前回と同じ設定ではじめる")
                                 .fontWeight(.medium)
                                 .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                       height: UIScreen.main.bounds.size.width / 6 * 1)
+                                       height: 60)
                                 .background(.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(.infinity)

@@ -1,6 +1,5 @@
 import SwiftUI
 
-// KeywordGroups構造体の定義
 struct KeywordGroups: Identifiable {
     let id = UUID()
     let groupName: String
@@ -56,7 +55,7 @@ struct RegisteringKeywordView: View {
                         Text("選択完了")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                                   height: 60)
                             .background(selectionValues.count != 0 ? Color.blue : Color.gray)
                             .foregroundColor(.white)
                             .cornerRadius(.infinity)

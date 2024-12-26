@@ -39,7 +39,7 @@ struct MeasureView: View {
                         Text("出会えた")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
+                                   height: 60)
                             .background(distance <= meetingDistance ? Color.blue : Color.gray)
                             .foregroundColor(.white)
                             .cornerRadius(.infinity)

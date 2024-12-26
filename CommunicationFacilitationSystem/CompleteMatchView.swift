@@ -20,7 +20,7 @@ struct CompleteMatchView: View {
                     Text("ホームへ戻る")
                         .fontWeight(.medium)
                         .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                               height: UIScreen.main.bounds.size.width / 6 * 1)
+                               height: 60)
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(.infinity)
