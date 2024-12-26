@@ -3,7 +3,7 @@ import MultipeerConnectivity
 import NearbyInteraction
 
 struct ModeSelectView: View {
-    @State var password: String = ""
+    @AppStorage("Channel") var myChannnel: String = ""
 
     var body: some View {
         NavigationView{
@@ -18,7 +18,7 @@ struct ModeSelectView: View {
                         .padding()
                     
                     Form{
-                        TextField("会場の合言葉", text: $password)
+                        TextField("会場の合言葉", text: $myChannnel)
                     }
                     .navigationTitle("周囲を見わたす")
                                         
@@ -30,12 +30,12 @@ struct ModeSelectView: View {
                                 .fontWeight(.medium)
                                 .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
                                        height: 60)
-                                .background(password != "" ? Color.blue : Color.gray)
+                                .background(myChannnel != "" ? Color.blue : Color.gray)
                                 .foregroundColor(.white)
                                 .cornerRadius(.infinity)
                         }
                         .padding()
-                        .disabled(password != "")
+                        .disabled(myChannnel != "")
                     }
                 }
             }

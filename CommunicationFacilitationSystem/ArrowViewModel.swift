@@ -19,6 +19,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
     
     private let serviceType = "browsing-chat"
     @AppStorage("MyName") var myName: String = ""
+    @AppStorage("Channel") var myChannnel: String = ""
     private var peerID = MCPeerID(displayName: UIDevice.current.name)
     
     private var selectionValues: Array<String> = []
@@ -36,7 +37,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
         session = MCSession(peer: peerID)
         session.delegate = self
 
-        let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ",")]
+        let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ","), "channel": myChannnel]
         advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
         advertiser.delegate = self
         advertiser.startAdvertisingPeer()
@@ -191,8 +192,13 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
                 
         DispatchQueue.main.async {
             guard let keywords = info?["myKeywords"]?.split(separator: ",").map(String.init) else { return }
+            guard let channel = info?["channel"] else { return }
+
             let commonKeywords = self.myKeywords.filter { keywords.contains($0) }
-            if !commonKeywords.isEmpty {
+            
+            print("相手：\(channel), 自分：\(self.myChannnel)")
+            
+            if !commonKeywords.isEmpty && self.myChannnel == channel {
                 self.availablePeers.append(peerID) // 見つけた端末リストに追加
             }
         }
