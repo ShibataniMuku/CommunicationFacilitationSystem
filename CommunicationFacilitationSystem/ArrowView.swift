@@ -6,102 +6,17 @@ struct ArrowView: View {
     @StateObject private var viewModel = ArrowViewModel()
     @State private var selectedPeer: MCPeerID? = nil
     @State var isShowDialog = false
-    @State var isActiveCompleteMatchView = false
 
     var body: some View {
-        NavigationLink(destination: CompleteMatchView(),
-                       isActive: $isActiveCompleteMatchView) {
-                        EmptyView()
-        }
-        
-        NavigationLink(destination: ConnectionRequestedView(arrowViewModel: viewModel),
+        NavigationLink(destination: FindingYouView(viewModel: viewModel),
                        isActive: $viewModel.isConnectionRequested) {
                         EmptyView()
         }
         
         VStack {
             if let selectedPeer = selectedPeer {
-//                if let direction = viewModel.direction {
-//                    VStack {
-//                        Text("方向 X: \(direction.x, specifier: "%.2f")")
-//                        Text("方向 Y: \(direction.y, specifier: "%.2f")")
-//                        Text("方向 Z: \(direction.z, specifier: "%.2f")")
-//                    }
-//                    .font(.headline)
-//                } else {
-//                    Text("方向: 計測中")
-//                        .font(.headline)
-//                }
-                
-                ZStack{
-                    Color(.systemGroupedBackground)
-                        .ignoresSafeArea()
-                    
-                    VStack(){
-                        Spacer()
-                        
-                        if let distance = viewModel.distance {
-                            if distance <= 0.5 {
-                                Text("すぐ近くにいます")
-                                    .font(.largeTitle)
-                                    .bold()
-                            } else {
-                                Text("\(distance, specifier: "%.2f") m")
-                                    .font(.largeTitle)
-                                    .bold()
-                            }
-
-                        } else {
-                            Text("距離計測中")
-                                .font(.largeTitle)
-                                .bold()
-                        }
-                        
-                        Spacer()
-                            
-                        Image(systemName: "arrowshape.up.fill") // システムアイコンの例
-                            .resizable() // サイズ変更可能にする
-                            .scaledToFit()
-                            .frame(width: UIScreen.main.bounds.size.width / 1.4)
-                            .foregroundColor(.green)
-                        
-                        Spacer()
-                    
-                        NavigationLink(destination: RegisteringKeywordView()) {
-                            Button{
-                                isActiveCompleteMatchView = true
-                            } label: {
-                                Text("出会えた")
-                                    .fontWeight(.medium)
-                                    .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                           height: UIScreen.main.bounds.size.width / 6 * 1)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(.infinity)
-                            }
-                        }
-                        
-                        NavigationLink(destination: ModeSelectView()) {
-                            Text("会うのをやめる")
-                                .fontWeight(.medium)
-                                .foregroundColor(.blue)
-                                .padding(.vertical)
-                                .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
-                                    Button("切断する"){
-                                        print("通信を切断しました")
-                                    }
-                                    Button("キャンセル", role: .cancel){
-
-                                        print("キャンセルしました")
-                                    }
-                                    
-                                }, message: {
-                                    Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
-                                })
-                        }
-                    }
-                    .padding()
-                }
+                // 接続が確立されたら，矢印の画面へ遷移
+                MeasureView(viewModel: viewModel, isShowDialog: isShowDialog)
             } else {
                 NavigationView{
                     ZStack{
