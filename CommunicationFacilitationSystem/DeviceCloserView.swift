@@ -4,6 +4,8 @@ struct DeviceCloserView: View {
     @ObservedObject var viewModel: ArrowViewModel
     @State private var isActiveCompleteMatchView: Bool = false
     
+    @State private var isFirst: Bool = false
+    
     var body: some View {
         NavigationLink(destination: ModeSelectView(),
                        isActive: $isActiveCompleteMatchView) {
@@ -15,8 +17,11 @@ struct DeviceCloserView: View {
                 .ignoresSafeArea()
             
             if let distance = viewModel.distance {
-                if distance <= 0.2 {
+                if distance <= 0.2 || isFirst {
                     CompleteMatchView()
+                        .onAppear(){
+                            isFirst = true
+                        }
                 } else {
                     VStack(){
                         Text("デバイスを近づける")

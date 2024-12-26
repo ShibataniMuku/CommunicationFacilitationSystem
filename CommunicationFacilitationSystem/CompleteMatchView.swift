@@ -16,22 +16,19 @@ struct CompleteMatchView: View {
                     .multilineTextAlignment(.center)
                 Spacer()
                 
-                NavigationLink(destination: RegisteringKeywordView()) {
-                    Button{
-                        
-                    } label: {
-                        Text("ホームへ戻る")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: UIScreen.main.bounds.size.width / 6 * 1)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
-                    }
+                NavigationLink(destination: ModeSelectView()) {
+                    Text("ホームへ戻る")
+                        .fontWeight(.medium)
+                        .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                               height: UIScreen.main.bounds.size.width / 6 * 1)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(.infinity)
                 }
             }
             .padding()
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 

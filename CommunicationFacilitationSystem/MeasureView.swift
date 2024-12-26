@@ -15,7 +15,7 @@ struct MeasureView: View {
                 Spacer()
                 
                 if let distance = viewModel.distance {
-                    if distance <= 0.5 {
+                    if distance <= 1 {
                         Text("すぐ近くにいます")
                             .font(.largeTitle)
                             .bold()
@@ -64,6 +64,7 @@ struct MeasureView: View {
                                 Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
                             })
                     }
+                    .navigationBarBackButtonHidden(true)
                 } else {
                     Text("相手のデバイスと接続中です")
                 }

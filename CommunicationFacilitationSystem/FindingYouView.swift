@@ -3,13 +3,13 @@ import SwiftUI
 struct FindingYouView: View {
     @ObservedObject var viewModel: ArrowViewModel
     @State private var isShowDialog = false
-    @State private var isActiveCompleteMatchView = false
+    @State private var isActiveModeSelectView = false
     
     var meetingDistance: Float = 1.0
     
     var body: some View {
         NavigationLink(destination: CompleteMatchView(),
-                       isActive: $isActiveCompleteMatchView) {
+                       isActive: $isActiveModeSelectView) {
                         EmptyView()
         }
         
@@ -46,7 +46,7 @@ struct FindingYouView: View {
                             .padding(.vertical)
                             .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                 Button("切断する"){
-                                    isActiveCompleteMatchView = true
+                                    isActiveModeSelectView = true
                                     print("通信を切断しました")
                                 }
                                 Button("キャンセル", role: .cancel){
@@ -62,5 +62,6 @@ struct FindingYouView: View {
                 .padding()
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
