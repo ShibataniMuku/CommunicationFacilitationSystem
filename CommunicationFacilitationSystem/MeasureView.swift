@@ -31,6 +31,12 @@ struct MeasureView: View {
                             .bold()
                     }
                     
+                    if let direction = viewModel.direction {
+                        Text("x: \(direction.x), y: \(direction.y), z: \(direction.z)")
+                    } else {
+                        Text("方向取得中...")
+                    }
+                    
                     Spacer()
                         
                     Image(systemName: "arrowshape.up.fill") // システムアイコンの例

@@ -159,6 +159,7 @@ extension ArrowViewModel: MCSessionDelegate {
             connectedPeerToken = discoveryToken
             if let token = connectedPeerToken {
                 let config = NINearbyPeerConfiguration(peerToken: token)
+                config.isCameraAssistanceEnabled = true
                 
                 // 新しいセッションを開始する
                 if niSession == nil {
@@ -230,7 +231,7 @@ extension ArrowViewModel: NISessionDelegate {
         guard let object = nearbyObjects.first else { return }
         DispatchQueue.main.async {
             self.distance = object.distance
-            self.direction = object.__direction
+            self.direction = object.direction
         }
     }
     
