@@ -3,10 +3,16 @@ import SwiftUI
 struct MeasureView: View {
     @ObservedObject var viewModel: ArrowViewModel
     @State var isShowDialog: Bool
+    @State var isActiveModeSelectView: Bool = false
     
     var meetingDistance: Float = 1.0
     
     var body: some View {
+        NavigationLink(destination: ModeSelectView(),
+                       isActive: $isActiveModeSelectView) {
+                        EmptyView()
+        }
+        
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
@@ -46,25 +52,27 @@ struct MeasureView: View {
                             .disabled(distance <= meetingDistance)
                     }
                     
-                    NavigationLink(destination: ModeSelectView()) {
+                    Button(action: {
+                        isShowDialog = true
+                    }){
                         Text("会うのをやめる")
                             .fontWeight(.medium)
                             .foregroundColor(.blue)
                             .padding(.vertical)
-                            .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
-                                Button("切断する"){
-                                    viewModel.stopSession() // NearbyInteractionを停止
-                                    print("通信を切断しました")
-                                }
-                                Button("キャンセル", role: .cancel){
-
-                                    print("キャンセルしました")
-                                }
-                                
-                            }, message: {
-                                Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
-                            })
                     }
+                    .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                        Button("切断する"){
+                            viewModel.stopSession() // NearbyInteractionを停止
+                            isActiveModeSelectView = true
+                        }
+                        Button("キャンセル", role: .cancel){
+
+                            print("キャンセルしました")
+                        }
+                        
+                    }, message: {
+                        Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
+                    })
                     .navigationBarBackButtonHidden(true)
                 } else {
                     Text("相手のデバイスと接続中です")

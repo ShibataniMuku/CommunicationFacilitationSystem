@@ -66,6 +66,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
     // NearbyInteractionを停止する
     func stopSession(){
         niSession?.invalidate()
+        print("NIのセッションを停止しました")
     }
 
     // 周辺のユーザの探索開始
@@ -137,11 +138,11 @@ extension ArrowViewModel: MCSessionDelegate {
                 if self.isAdvertiser{
                     self.isConnectionRequested = true
                 }
-                print("\(peerID.displayName)が接続中です")
+                print("\(peerID.displayName)のMCが接続中です")
             case .notConnected:
-                print("\(peerID.displayName)が切断されました")
+                print("\(peerID.displayName)のMCが切断されました")
             @unknown default:
-                print("\(peerID.displayName)が未知の状態です")
+                print("\(peerID.displayName)のMCが未知の状態です")
             }
         }
     }
@@ -224,6 +225,7 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
 
 // MARK: - NISessionDelegate
 extension ArrowViewModel: NISessionDelegate {
+    // NIが近傍オブジェクトを更新した時に呼ばれる
     func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
         guard let object = nearbyObjects.first else { return }
         DispatchQueue.main.async {
@@ -231,15 +233,22 @@ extension ArrowViewModel: NISessionDelegate {
             self.direction = object.__direction
         }
     }
+    
+    func session(_ session: NISession, didRemove nearbyObjects: [NINearbyObject], reason: NINearbyObject.RemovalReason){
+        print("セッションが，1つ以上の近傍オブジェクトを削除しました")
+    }
 
+    // NIが中断された時に呼ばれる
     func sessionWasSuspended(_: NISession) {
         print("Nearby Interaction session suspended.")
     }
 
+    // NIが再開された時に呼ばれる
     func sessionSuspensionEnded(_: NISession) {
         print("Nearby Interaction session resumed.")
     }
 
+    // NIが終了した時に呼ばれる
     func session(_: NISession, didInvalidateWith error: Error) {
         print("Nearby Interaction session invalidated: \(error.localizedDescription)")
     }

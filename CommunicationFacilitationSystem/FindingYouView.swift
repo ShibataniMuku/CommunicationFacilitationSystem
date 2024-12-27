@@ -8,7 +8,7 @@ struct FindingYouView: View {
     var meetingDistance: Float = 1.0
     
     var body: some View {
-        NavigationLink(destination: CompleteMatchView(),
+        NavigationLink(destination: ModeSelectView(),
                        isActive: $isActiveModeSelectView) {
                         EmptyView()
         }
@@ -39,26 +39,29 @@ struct FindingYouView: View {
                             .disabled(distance <= meetingDistance)
                     }
                     
-                    NavigationLink(destination: ModeSelectView()) {
+                    Button(action: {
+                        isShowDialog = true
+                    }){
                         Text("会うのをやめる")
                             .fontWeight(.medium)
                             .foregroundColor(.blue)
                             .padding(.vertical)
-                            .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
-                                Button("切断する"){
-                                    viewModel.stopSession() // NearbyInteractionを停止
-                                    isActiveModeSelectView = true
-                                    print("通信を切断しました")
-                                }
-                                Button("キャンセル", role: .cancel){
-
-                                    print("キャンセルしました")
-                                }
-                                
-                            }, message: {
-                                Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
-                            })
                     }
+                    .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                        Button("切断する"){
+                            viewModel.stopSession() // NearbyInteractionを停止
+                            isActiveModeSelectView = true
+                            print("通信を切断しました")
+                        }
+                        Button("キャンセル", role: .cancel){
+
+                            print("キャンセルしました")
+                        }
+                        
+                    }, message: {
+                        Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
+                    })
+                    .navigationBarBackButtonHidden(true)
                 }
                 .padding()
             }
