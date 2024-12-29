@@ -34,8 +34,23 @@ struct ArrowView: View {
                                 Button(action: {
                                     isShowDialog = true
                                 }) {
-                                    Text(availableDevice.mcPeerId.displayName)
-                                        .foregroundColor(.black)
+                                    HStack{
+                                        Text(availableDevice.mcPeerId.displayName)
+                                        Spacer()
+//                                        ForEach(availableDevice.commonKeywords){ commonKeyword in
+//                                            Text(commonKeyword)
+//                                                .padding(5)
+//                                                .background(
+//                                                    GeometryReader { geometry in
+//                                                        RoundedRectangle(cornerRadius: .infinity)
+//                                                            .fill(Color.orange)
+//                                                            .frame(width: geometry.size.width,
+//                                                                   height: geometry.size.height)
+//                                                    }
+//                                                )
+//                                                .foregroundColor(.white)
+//                                        }
+                                    }
                                 }.confirmationDialog("\(availableDevice.mcPeerId.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                     Button("会いに行く"){
                                         selectedPeer = availableDevice.mcPeerId
