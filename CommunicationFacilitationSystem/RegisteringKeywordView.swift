@@ -1,36 +1,22 @@
 import SwiftUI
-
-struct KeywordGroups: Identifiable {
-    let id = UUID()
-    let groupName: String
-    let keywords: [String]
-}
-
-struct Keyword: Identifiable, Codable, Hashable {
-    let id: UUID
-    var name: String
-
-    init(name: String) {
-        self.id = UUID()
-        self.name = name
-    }
-}
+import SwiftData
 
 struct RegisteringKeywordView: View {
     let sampleKeywordGroups = [
-        KeywordGroups(groupName: "スポーツ", keywords: ["サッカー", "野球", "テニス", "卓球", "バレー", "バスケットボール"]),
-        KeywordGroups(groupName: "食べ物", keywords: ["ラーメン", "ハンバーガー", "寿司", "天ぷら", "うどん"]),
-        KeywordGroups(groupName: "趣味", keywords: ["映画", "音楽", "漫画", "アニメ", "アウトドア"])
+        KeywordGroup(groupName: "スポーツ", keywords: [Keyword(name: "サッカー"), Keyword(name: "バスケットボール"), Keyword(name: "野球")]),
+        KeywordGroup(groupName: "食べ物", keywords: [Keyword(name: "天ぷら"), Keyword(name: "寿司"), Keyword(name: "ラーメン")])
     ]
     
-    @State private var selectionValues: Set<String> = []
+    @State private var selectionValues: Set<Keyword> = []
+    @Environment(\.modelContext) private var modelContext
+    @Query var savedKeywordGroups: [KeywordGroup]
 
     var body: some View {
-        ZStack{
+        ZStack {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
-            VStack{
+            VStack {
                 Text("あなたを表すキーワードを選択してください")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -40,18 +26,41 @@ struct RegisteringKeywordView: View {
                     ForEach(sampleKeywordGroups) { group in
                         Section(header: Text(group.groupName)) {
                             ForEach(group.keywords, id: \.self) { keyword in
-                                Text(keyword)
+                                Text(keyword.name)
+                                    .tag(keyword)
+                                    .onTapGesture {
+                                        keyword.isSelected.toggle()
+                                    }
                             }
                         }
                     }
                 }
                 .scrollContentBackground(.hidden)
                 .environment(\.editMode, .constant(.active))
-                
-                NavigationLink(destination: ModeSelectView()){
-                    Button{
+                .onAppear {
+                    initializeSelection()
+                }
+                .onChange(of: selectionValues) { newSelection in
+                    for keyword in newSelection {
+                        print("選択されたのは \(keyword.name)")
+                        keyword.isSelected.toggle()
                         
-                    } label: {
+                        do {
+                            modelContext.insert(keyword)
+
+//                            try modelContext.save()
+                            print("データを保存しました")
+                        } catch {
+                            modelContext.insert(keyword)
+                            print("データを追加しました")
+                        }
+                    }
+                }
+                
+                NavigationLink(destination: ModeSelectView()) {
+                    Button(action: {
+                        // try? modelContext.save()
+                    }) {
                         Text("選択完了")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
@@ -67,10 +76,28 @@ struct RegisteringKeywordView: View {
             .navigationTitle("あなたの特徴")
         }
     }
+    
+    private func initializeSelection() {
+        // 保存されたキーワードを取得し、selectionValuesに追加
+        let savedKeywords = savedKeywordGroups.flatMap { $0.keywords }
+        selectionValues = Set(savedKeywords)
+
+        // sampleKeywordGroups内の該当するキーワードのisSelectedを更新
+        for groupIndex in sampleKeywordGroups.indices {
+            for keywordIndex in sampleKeywordGroups[groupIndex].keywords.indices {
+                if savedKeywords.contains(sampleKeywordGroups[groupIndex].keywords[keywordIndex]) {
+                    sampleKeywordGroups[groupIndex].keywords[keywordIndex].isSelected = true
+                    print(sampleKeywordGroups[groupIndex].keywords[keywordIndex].name)
+                }
+            }
+        }
+        
+        print("sssssss")
+    }
 }
 
 #Preview {
-    NavigationView{
+    NavigationView {
         RegisteringKeywordView()
     }
 }
