@@ -3,7 +3,7 @@ import MultipeerConnectivity
 import NearbyInteraction
 
 final class ArrowViewModel: NSObject, ObservableObject {
-    @Published var availablePeers: [MCPeerID] = []
+    @Published var availableDevices: [AvailableDevice] = []
     @Published var distance: Float?
     @Published var direction: simd_float3?
     @Published var isConnectionRequested = false; // 接続を要求された
@@ -212,7 +212,8 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
             print("相手：\(keywords), 自分：\(self.myKeywords), 共通：\(commonKeywords)")
             
             if !commonKeywords.isEmpty && self.myChannnel == channel {
-                self.availablePeers.append(peerID) // 見つけた端末リストに追加
+//                self.availablePeers.append(peerID) // 見つけた端末リストに追加
+                self.availableDevices.append(AvailableDevice(mcPeerId: peerID, commonKeywords: commonKeywords))
             }
         }
     }
@@ -220,7 +221,7 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
     // 発見した端末をロストしたときに呼ばれる
     func browser(_: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         DispatchQueue.main.async {
-            self.availablePeers.removeAll { $0 == peerID }
+            self.availableDevices.removeAll { $0.mcPeerId == peerID }
         }
     }
 

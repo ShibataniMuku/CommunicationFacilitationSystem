@@ -30,16 +30,16 @@ struct ArrowView: View {
                                 .multilineTextAlignment(.center)
                                 .padding()
                             
-                            List(viewModel.availablePeers, id: \.self) { peer in
+                            List(viewModel.availableDevices, id: \.id) { availableDevice in
                                 Button(action: {
                                     isShowDialog = true
                                 }) {
-                                    Text(peer.displayName)
+                                    Text(availableDevice.mcPeerId.displayName)
                                         .foregroundColor(.black)
-                                }.confirmationDialog("\(peer.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                                }.confirmationDialog("\(availableDevice.mcPeerId.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                                     Button("会いに行く"){
-                                        selectedPeer = peer
-                                        viewModel.connectToPeer(peer)
+                                        selectedPeer = availableDevice.mcPeerId
+                                        viewModel.connectToPeer(availableDevice.mcPeerId)
                                     }
                                     Button("キャンセル", role: .cancel){
                                         print("キャンセルしました")
