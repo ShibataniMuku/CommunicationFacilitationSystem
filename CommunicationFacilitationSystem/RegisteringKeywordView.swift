@@ -1,15 +1,21 @@
 import SwiftUI
-import SwiftData
 
 struct RegisteringKeywordView: View {
     let sampleKeywordGroups = [
-        KeywordGroup(groupName: "スポーツ", keywords: [Keyword(name: "サッカー"), Keyword(name: "バスケットボール"), Keyword(name: "野球")]),
-        KeywordGroup(groupName: "食べ物", keywords: [Keyword(name: "天ぷら"), Keyword(name: "寿司"), Keyword(name: "ラーメン")])
+        KeywordGroup(groupName: "スポーツ", keywords: [
+            Keyword(name: "サッカー"),
+            Keyword(name: "バスケットボール"),
+            Keyword(name: "野球")
+        ]),
+        KeywordGroup(groupName: "食べ物", keywords: [
+            Keyword(name: "天ぷら"),
+            Keyword(name: "寿司"),
+            Keyword(name: "ラーメン")
+        ])
     ]
     
     @State private var selectionValues: Set<Keyword> = []
-    @Environment(\.modelContext) private var modelContext
-    @Query var savedKeywordGroups: [KeywordGroup]
+    private let userDefaultsKey = "SelectedKeywords"
 
     var body: some View {
         ZStack {
@@ -28,9 +34,6 @@ struct RegisteringKeywordView: View {
                             ForEach(group.keywords, id: \.self) { keyword in
                                 Text(keyword.name)
                                     .tag(keyword)
-                                    .onTapGesture {
-                                        keyword.isSelected.toggle()
-                                    }
                             }
                         }
                     }
@@ -38,28 +41,16 @@ struct RegisteringKeywordView: View {
                 .scrollContentBackground(.hidden)
                 .environment(\.editMode, .constant(.active))
                 .onAppear {
-                    initializeSelection()
+                    loadSelection()
                 }
-                .onChange(of: selectionValues) { newSelection in
-                    for keyword in newSelection {
-                        print("選択されたのは \(keyword.name)")
-                        keyword.isSelected.toggle()
-                        
-                        do {
-                            modelContext.insert(keyword)
-
-//                            try modelContext.save()
-                            print("データを保存しました")
-                        } catch {
-                            modelContext.insert(keyword)
-                            print("データを追加しました")
-                        }
-                    }
+                .onChange(of: selectionValues) { _ in
+                    saveSelection()
                 }
                 
                 NavigationLink(destination: ModeSelectView()) {
                     Button(action: {
-                        // try? modelContext.save()
+                        // 保存を確定
+                        saveSelection()
                     }) {
                         Text("選択完了")
                             .fontWeight(.medium)
@@ -70,29 +61,29 @@ struct RegisteringKeywordView: View {
                             .cornerRadius(.infinity)
                     }
                     .padding()
-                    .disabled(selectionValues.count != 0)
+                    .disabled(!selectionValues.isEmpty)
                 }
             }
             .navigationTitle("あなたの特徴")
         }
     }
-    
-    private func initializeSelection() {
-        // 保存されたキーワードを取得し、selectionValuesに追加
-        let savedKeywords = savedKeywordGroups.flatMap { $0.keywords }
-        selectionValues = Set(savedKeywords)
 
-        // sampleKeywordGroups内の該当するキーワードのisSelectedを更新
-        for groupIndex in sampleKeywordGroups.indices {
-            for keywordIndex in sampleKeywordGroups[groupIndex].keywords.indices {
-                if savedKeywords.contains(sampleKeywordGroups[groupIndex].keywords[keywordIndex]) {
-                    sampleKeywordGroups[groupIndex].keywords[keywordIndex].isSelected = true
-                    print(sampleKeywordGroups[groupIndex].keywords[keywordIndex].name)
-                }
-            }
+    /// ユーザーが選択したキーワードを保存
+    private func saveSelection() {
+        let keywordNames = selectionValues.map { $0.name } // キーワード名のみを保存
+        UserDefaults.standard.set(keywordNames, forKey: userDefaultsKey)
+        print("選択されたキーワードを保存しました: \(keywordNames)")
+    }
+
+    /// ユーザーが保存したキーワードの選択状態を読み込む
+    private func loadSelection() {
+        if let savedNames = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
+            let savedKeywords = sampleKeywordGroups
+                .flatMap { $0.keywords }
+                .filter { savedNames.contains($0.name) }
+            selectionValues = Set(savedKeywords)
+            print("保存された選択状態を復元しました: \(savedNames)")
         }
-        
-        print("sssssss")
     }
 }
 
