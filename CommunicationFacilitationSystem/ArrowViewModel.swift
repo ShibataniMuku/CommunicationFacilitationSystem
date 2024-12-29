@@ -18,12 +18,13 @@ final class ArrowViewModel: NSObject, ObservableObject {
     var myTokenData: Data?
     
     private let serviceType = "browsing-chat"
+    private let userDefaultsKey = "SelectedKeywords"
     @AppStorage("MyName") var myName: String = ""
     @AppStorage("Channel") var myChannnel: String = ""
     private var peerID = MCPeerID(displayName: UIDevice.current.name)
     
     private var selectionValues: Array<String> = []
-    private let myKeywords = ["apple", "orange", "grape"]
+    private var myKeywords: [String] = []
 
     override init() {
         super.init()
@@ -36,8 +37,13 @@ final class ArrowViewModel: NSObject, ObservableObject {
     func setupMultipeerConnectivity() {
         session = MCSession(peer: peerID)
         session.delegate = self
-
+        
+        // キーワードの登録
+        if let myKeywords = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String]{
+            self.myKeywords = myKeywords
+        }
         let discoveryInfo = ["myKeywords": myKeywords.joined(separator: ","), "channel": myChannnel]
+        
         advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
         advertiser.delegate = self
         advertiser.startAdvertisingPeer()
@@ -203,7 +209,7 @@ extension ArrowViewModel: MCNearbyServiceBrowserDelegate {
 
             let commonKeywords = self.myKeywords.filter { keywords.contains($0) }
             
-            print("相手：\(channel), 自分：\(self.myChannnel)")
+            print("相手：\(keywords), 自分：\(self.myKeywords), 共通：\(commonKeywords)")
             
             if !commonKeywords.isEmpty && self.myChannnel == channel {
                 self.availablePeers.append(peerID) // 見つけた端末リストに追加
