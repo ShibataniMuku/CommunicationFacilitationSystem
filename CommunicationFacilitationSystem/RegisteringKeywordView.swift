@@ -1,36 +1,28 @@
 import SwiftUI
 
-struct KeywordGroups: Identifiable {
-    let id = UUID()
-    let groupName: String
-    let keywords: [String]
-}
-
-struct Keyword: Identifiable, Codable, Hashable {
-    let id: UUID
-    var name: String
-
-    init(name: String) {
-        self.id = UUID()
-        self.name = name
-    }
-}
-
 struct RegisteringKeywordView: View {
     let sampleKeywordGroups = [
-        KeywordGroups(groupName: "スポーツ", keywords: ["サッカー", "野球", "テニス", "卓球", "バレー", "バスケットボール"]),
-        KeywordGroups(groupName: "食べ物", keywords: ["ラーメン", "ハンバーガー", "寿司", "天ぷら", "うどん"]),
-        KeywordGroups(groupName: "趣味", keywords: ["映画", "音楽", "漫画", "アニメ", "アウトドア"])
+        KeywordGroup(groupName: "スポーツ", keywords: [
+            Keyword(name: "サッカー"),
+            Keyword(name: "バスケットボール"),
+            Keyword(name: "野球")
+        ]),
+        KeywordGroup(groupName: "食べ物", keywords: [
+            Keyword(name: "天ぷら"),
+            Keyword(name: "寿司"),
+            Keyword(name: "ラーメン")
+        ])
     ]
     
-    @State private var selectionValues: Set<String> = []
+    @State private var selectionValues: Set<Keyword> = []
+    private let userDefaultsKey = "SelectedKeywords"
 
     var body: some View {
-        ZStack{
+        ZStack {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
-            VStack{
+            VStack {
                 Text("あなたを表すキーワードを選択してください")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -40,18 +32,26 @@ struct RegisteringKeywordView: View {
                     ForEach(sampleKeywordGroups) { group in
                         Section(header: Text(group.groupName)) {
                             ForEach(group.keywords, id: \.self) { keyword in
-                                Text(keyword)
+                                Text(keyword.name)
+                                    .tag(keyword)
                             }
                         }
                     }
                 }
                 .scrollContentBackground(.hidden)
                 .environment(\.editMode, .constant(.active))
+                .onAppear {
+                    loadSelection()
+                }
+                .onChange(of: selectionValues) { _ in
+                    saveSelection()
+                }
                 
-                NavigationLink(destination: ModeSelectView()){
-                    Button{
-                        
-                    } label: {
+                NavigationLink(destination: ModeSelectView()) {
+                    Button(action: {
+                        // 保存を確定
+                        saveSelection()
+                    }) {
                         Text("選択完了")
                             .fontWeight(.medium)
                             .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
@@ -61,16 +61,34 @@ struct RegisteringKeywordView: View {
                             .cornerRadius(.infinity)
                     }
                     .padding()
-                    .disabled(selectionValues.count != 0)
+                    .disabled(!selectionValues.isEmpty)
                 }
             }
             .navigationTitle("あなたの特徴")
         }
     }
+
+    /// ユーザーが選択したキーワードを保存
+    private func saveSelection() {
+        let keywordNames = selectionValues.map { $0.name } // キーワード名のみを保存
+        UserDefaults.standard.set(keywordNames, forKey: userDefaultsKey)
+        print("選択されたキーワードを保存しました: \(keywordNames)")
+    }
+
+    /// ユーザーが保存したキーワードの選択状態を読み込む
+    private func loadSelection() {
+        if let savedNames = UserDefaults.standard.array(forKey: userDefaultsKey) as? [String] {
+            let savedKeywords = sampleKeywordGroups
+                .flatMap { $0.keywords }
+                .filter { savedNames.contains($0.name) }
+            selectionValues = Set(savedKeywords)
+            print("保存された選択状態を復元しました: \(savedNames)")
+        }
+    }
 }
 
 #Preview {
-    NavigationView{
+    NavigationView {
         RegisteringKeywordView()
     }
 }
