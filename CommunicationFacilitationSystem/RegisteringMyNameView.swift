@@ -2,23 +2,27 @@ import SwiftUI
 
 struct RegisteringMyNameView: View {
     @AppStorage("MyName") var name: String = ""
-
+    
     var body: some View {
-        ZStack {
+        ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
-
-            VStack {
+            
+            VStack(){
+                Text("あなたの名前")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.vertical)
                 Text("あなたの名前を入力してください\nニックネームでも構いません")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .padding(.vertical)
                     .multilineTextAlignment(.center)
-                    .padding()
-
+                
                 Form {
                     TextField("名前", text: $name)
                 }
-
+                
+                Spacer()
+                
                 NavigationLink(destination: RegisteringKeywordView()) {
                     Button{
                         
@@ -35,7 +39,7 @@ struct RegisteringMyNameView: View {
                     .disabled(name != "")
                 }
             }
-            .navigationTitle("あなたの名前")
+            .padding()
         }
     }
 }
