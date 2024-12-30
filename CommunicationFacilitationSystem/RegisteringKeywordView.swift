@@ -18,15 +18,19 @@ struct RegisteringKeywordView: View {
     private let userDefaultsKey = "SelectedKeywords"
 
     var body: some View {
-        ZStack {
+        
+        ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
-            VStack {
+            VStack(){
+                Text("あなたの特徴")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.vertical)
                 Text("あなたを表すキーワードを選択してください")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding()
+                    .padding(.vertical)
+                    .multilineTextAlignment(.center)
                 
                 List(selection: $selectionValues) {
                     ForEach(sampleKeywordGroups) { group in
@@ -47,6 +51,8 @@ struct RegisteringKeywordView: View {
                     saveSelection()
                 }
                 
+                Spacer()
+                
                 NavigationLink(destination: ModeSelectView()) {
                     Button(action: {
                         // 保存を確定
@@ -64,7 +70,7 @@ struct RegisteringKeywordView: View {
                     .disabled(!selectionValues.isEmpty)
                 }
             }
-            .navigationTitle("あなたの特徴")
+            .padding()
         }
     }
 
