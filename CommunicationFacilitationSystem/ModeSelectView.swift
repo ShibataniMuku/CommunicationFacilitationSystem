@@ -11,17 +11,21 @@ struct ModeSelectView: View {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
                 
-                VStack{
+                VStack(){
+                    Text("周囲を見わたす")
+                        .font(.largeTitle)
+                        .bold()
+                        .padding(.vertical)
                     Text("あなたと気が合う人を探しに出かけましょう")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding()
+                        .padding(.vertical)
+                        .multilineTextAlignment(.center)
                     
                     Form{
                         TextField("会場の合言葉", text: $myChannnel)
                     }
-                    .navigationTitle("周囲を見わたす")
-                                        
+                    
+                    Spacer()
+                    
                     NavigationLink(destination: ArrowView()){
                         Button{
                             
@@ -38,6 +42,7 @@ struct ModeSelectView: View {
                         .disabled(myChannnel != "")
                     }
                 }
+                .padding()
             }
         }
         .navigationBarBackButtonHidden(true)

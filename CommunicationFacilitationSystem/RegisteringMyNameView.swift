@@ -13,7 +13,7 @@ struct RegisteringMyNameView: View {
                     .font(.largeTitle)
                     .bold()
                     .padding(.vertical)
-                Text("あなたの名前を入力してください\nニックネームでも構いません")
+                Text("あなたのニックネームを入力してください\n相手のデバイスに表示されます")
                     .padding(.vertical)
                     .multilineTextAlignment(.center)
                 
