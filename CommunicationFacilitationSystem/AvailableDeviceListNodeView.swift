@@ -6,6 +6,7 @@ struct AvailableDeviceListNodeView: View {
     var body: some View {
         HStack{
             Text(availableDevice.mcPeerId.displayName)
+                .foregroundColor(.black)
             Spacer()
             ForEach(availableDevice.commonKeywords, id: \.self){ commonKeyword in
                 Text(commonKeyword)

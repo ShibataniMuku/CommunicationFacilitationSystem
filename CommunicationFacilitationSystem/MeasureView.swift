@@ -16,11 +16,10 @@ struct MeasureView: View {
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
-            
-            VStack(){
-                Spacer()
                 
-                if let distance = viewModel.distance {
+            if let distance = viewModel.distance {
+                VStack(){
+                    Spacer()
                     if distance <= 1 {
                         Text("すぐ近くにいます")
                             .font(.largeTitle)
@@ -34,11 +33,11 @@ struct MeasureView: View {
                     if let direction = viewModel.direction {
                         Text("x: \(direction.x), y: \(direction.y), z: \(direction.z)")
                     } else {
-                        Text("方向取得中...")
+//                        Text("方向取得中...")
                     }
                     
                     Spacer()
-                        
+                    
                     Image(systemName: "arrowshape.up.fill") // システムアイコンの例
                         .resizable() // サイズ変更可能にする
                         .scaledToFit()
@@ -72,7 +71,7 @@ struct MeasureView: View {
                             isActiveModeSelectView = true
                         }
                         Button("キャンセル", role: .cancel){
-
+                            
                             print("キャンセルしました")
                         }
                         
@@ -80,11 +79,13 @@ struct MeasureView: View {
                         Text("通信を切断すると、通信しているもう一方のユーザが、あなたに会いに来ることができなくなります。")
                     })
                     .navigationBarBackButtonHidden(true)
-                } else {
-                    Text("相手のデバイスと接続中です")
+                }
+                .padding()
+            } else {
+                HStack{
+                    ProgressView("相手のデバイスと接続中です")
                 }
             }
-            .padding()
         }
     }
 }

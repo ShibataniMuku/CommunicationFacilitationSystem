@@ -70,7 +70,6 @@ struct RegisteringKeywordView: View {
                     .disabled(!selectionValues.isEmpty)
                 }
             }
-            .padding()
         }
     }
 

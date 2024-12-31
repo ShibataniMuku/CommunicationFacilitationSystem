@@ -26,7 +26,6 @@ struct CompleteMatchView: View {
                         .cornerRadius(.infinity)
                 }
             }
-            .padding()
         }
         .navigationBarBackButtonHidden(true)
     }

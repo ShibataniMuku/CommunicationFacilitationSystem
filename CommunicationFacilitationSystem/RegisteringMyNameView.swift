@@ -39,7 +39,6 @@ struct RegisteringMyNameView: View {
                     .disabled(name != "")
                 }
             }
-            .padding()
         }
     }
 }

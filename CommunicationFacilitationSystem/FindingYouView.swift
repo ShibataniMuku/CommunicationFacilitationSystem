@@ -23,7 +23,7 @@ struct FindingYouView: View {
                         .font(.largeTitle)
                         .bold()
                         .padding(.vertical)
-                    Text("あなたの周辺にいるユーザが、あなたを探しています。近くに来たら、話しかけてみましょう。")
+                    Text("あなたの周辺にいるユーザが、あなたを探しています。\n近くに来たら、話しかけてみましょう。")
                         .padding(.vertical)
                         .multilineTextAlignment(.center)
                     Spacer()

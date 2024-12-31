@@ -18,41 +18,44 @@ struct ArrowView: View {
                 // 接続が確立されたら，矢印の画面へ遷移
                 MeasureView(viewModel: viewModel, isShowDialog: isShowDialog)
             } else {
-                NavigationView{
-                    ZStack{
-                        Color(.systemGroupedBackground)
-                            .ignoresSafeArea()
+                ZStack{
+                    Color(.systemGroupedBackground)
+                        .ignoresSafeArea()
+                    
+                    VStack(){
+                        Text("散策中")
+                            .font(.largeTitle)
+                            .bold()
+                            .padding(.vertical)
                         
-                        VStack{
-                            Text("あなたと気が合いそうな人が表示されます。\nタップして会いに行ってみましょう")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding()
-                            
-                            List(viewModel.availableDevices, id: \.id) { availableDevice in
-                                Button(action: {
-                                    isShowDialog = true
-                                }) {
-                                    AvailableDeviceListNodeView(availableDevice: availableDevice)
-                                }.confirmationDialog("\(availableDevice.mcPeerId.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
-                                    Button("会いに行く"){
-                                        selectedPeer = availableDevice.mcPeerId
-                                        viewModel.connectToPeer(availableDevice.mcPeerId)
-                                    }
-                                    Button("キャンセル", role: .cancel){
-                                        print("キャンセルしました")
-                                    }
-                                    
-                                }, message: {
-                                    Text("通信を開始すると、相手までの距離と方向が表示されます。")
-                                })
-                            }
-                            .navigationTitle("散策中")
-                            .scrollContentBackground(.hidden)
-                            .environment(\.editMode, .constant(.active))
+                        Text("あなたと気が合いそうな人が表示されます。\nタップして会いに行ってみましょう。")
+                            .padding(.vertical)
+                            .multilineTextAlignment(.center)
+                        
+                        List(viewModel.availableDevices, id: \.id) { availableDevice in
+                            Button(action: {
+                                isShowDialog = true
+                            }) {
+                                AvailableDeviceListNodeView(availableDevice: availableDevice)
+                            }.confirmationDialog("\(availableDevice.mcPeerId.displayName)さんに会いに行きますか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
+                                Button("会いに行く"){
+                                    selectedPeer = availableDevice.mcPeerId
+                                    viewModel.connectToPeer(availableDevice.mcPeerId)
+                                }
+                                Button("キャンセル", role: .cancel){
+                                    print("キャンセルしました")
+                                }
+                                
+                            }, message: {
+                                Text("通信を開始すると、相手までの距離と方向が表示されます。")
+                            })
                         }
+                        .scrollContentBackground(.hidden)
+                        .environment(\.editMode, .constant(.active))
+                        
+                        Spacer()
                     }
+                    .padding()
                 }
             }
         }

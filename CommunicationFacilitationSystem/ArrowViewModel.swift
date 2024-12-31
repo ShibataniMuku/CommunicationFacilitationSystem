@@ -236,9 +236,12 @@ extension ArrowViewModel: NISessionDelegate {
     // NIが近傍オブジェクトを更新した時に呼ばれる
     func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
         guard let object = nearbyObjects.first else { return }
+        
         DispatchQueue.main.async {
             self.distance = object.distance
             self.direction = object.direction
+            
+            print("aaaaaa: \(object.horizontalAngle == nil)")
         }
     }
     

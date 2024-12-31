@@ -42,7 +42,6 @@ struct ModeSelectView: View {
                         .disabled(myChannnel != "")
                     }
                 }
-                .padding()
             }
         }
         .navigationBarBackButtonHidden(true)
