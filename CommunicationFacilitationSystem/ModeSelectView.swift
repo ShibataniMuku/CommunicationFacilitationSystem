@@ -4,6 +4,10 @@ import NearbyInteraction
 
 struct ModeSelectView: View {
     @AppStorage("Channel") var myChannnel: String = ""
+    @AppStorage("MyName") var myName: String = ""
+    
+    @State var isShowSheet: Bool = false
+    @State private var isActiveArrowView: Bool = false
 
     var body: some View {
         NavigationView{
@@ -26,20 +30,32 @@ struct ModeSelectView: View {
                     
                     Spacer()
                     
-                    NavigationLink(destination: ArrowView()){
-                        Button{
-                            
-                        } label: {
-                            Text("散策に出かける")
-                                .fontWeight(.medium)
-                                .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                       height: 60)
-                                .background(myChannnel != "" ? Color.blue : Color.gray)
-                                .foregroundColor(.white)
-                                .cornerRadius(.infinity)
+                    Button(action: {
+                        if myName == ""{
+                            print("名前が登録されていません")
+                            isShowSheet = true
+                        } else {
+                            isActiveArrowView = true
+                            print("名前が登録されています")
                         }
-                        .padding()
-                        .disabled(myChannnel != "")
+                    }) {
+                        Text("散策に出かける")
+                            .fontWeight(.medium)
+                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
+                                   height: 60)
+                            .background(myChannnel != "" ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(.infinity)
+                    }
+                    .padding()
+                    .disabled(myChannnel == "")
+                    .sheet(isPresented: $isShowSheet){
+                        RegisteringMyNameSetupView()
+                    }
+                    
+                    NavigationLink(destination: ArrowView(),
+                                   isActive: $isActiveArrowView) {
+                                    EmptyView()
                     }
                 }
             }

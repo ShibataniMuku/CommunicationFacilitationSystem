@@ -12,7 +12,7 @@ struct LaunchView: View {
                 VStack{
                     Spacer()
                     
-                    NavigationLink(destination: RegisteringMyNameView()){
+                    NavigationLink(destination: RegisteringMyNameSetupView()){
                         Button{
                              
                         } label: {

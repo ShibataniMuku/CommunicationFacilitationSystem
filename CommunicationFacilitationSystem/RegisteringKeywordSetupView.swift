@@ -13,7 +13,7 @@ struct RegisteringKeywordSetupView: View {
                 
                 NavigationLink(destination: ModeSelectView()) {
                     Button(action: {
-                        
+                        print("aaaaaaaa")
                     }) {
                         Text("選択完了")
                             .fontWeight(.medium)
