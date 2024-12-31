@@ -18,7 +18,7 @@ struct CommunicationFacilitationSystemApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LaunchView()
+            HomeView()
                 .modelContainer(for: Keyword.self)
         }
         .modelContainer(sharedModelContainer)

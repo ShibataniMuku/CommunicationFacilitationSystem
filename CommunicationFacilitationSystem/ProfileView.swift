@@ -11,15 +11,8 @@ struct ProfileView: View {
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
-                .onTapGesture {
-                    // プロフィール写真の変更
-                    
-                }
             
-            VStack{
-                Circle()
-                    .frame(height: UIScreen.main.bounds.size.width / 2.5)
-                
+            NavigationView{
                 List{
                     Section(header: Text("基本情報")) {
                         TextField("ニックネーム", text: $name)
@@ -29,24 +22,37 @@ struct ProfileView: View {
                             Text(Sex.other.rawValue).tag(Sex.other)
                             Text(Sex.noAnswer.rawValue).tag(Sex.noAnswer)
                         }
+                        .pickerStyle(.navigationLink)
+                        
                         DatePicker("誕生日", selection: $birthday, displayedComponents: [.date])
+                        
                         Picker("出身地", selection: $birthplace){
                             ForEach(Prefecture.allCases, id: \.id) { prefecture in
                                 Text(prefecture.rawValue)
                             }
                         }
+                        .pickerStyle(.navigationLink)
+                        
                         Picker("居住地", selection: $residence){
                             ForEach(Prefecture.allCases, id: \.id) { prefecture in
                                 Text(prefecture.rawValue)
                             }
                         }
+                        .pickerStyle(.navigationLink)
                     }
                     
                     Section(header: Text("詳細情報")) {
                         TextField("自己紹介", text: $name, axis: .vertical)
                             .frame(height: 100, alignment: .top)
                     }
+                    
+                    Section(header: Text("キーワード")) {
+                        NavigationLink(destination: RegisteringKeywordView()) {
+                            Text("キーワード")
+                        }
+                    }
                 }
+                .navigationTitle("プロフィール")
             }
         }
     }

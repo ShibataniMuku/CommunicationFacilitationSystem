@@ -18,19 +18,14 @@ struct RegisteringKeywordView: View {
     private let userDefaultsKey = "SelectedKeywords"
 
     var body: some View {
-        
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
-            VStack(){
-                Text("あなたの特徴")
-                    .font(.largeTitle)
-                    .bold()
-                    .padding(.vertical)
+            VStack{
                 Text("あなたを表すキーワードを選択してください")
                     .padding(.vertical)
-                    .multilineTextAlignment(.center)
+                    .multilineTextAlignment(.center)                
                 
                 List(selection: $selectionValues) {
                     ForEach(sampleKeywordGroups) { group in
@@ -42,7 +37,6 @@ struct RegisteringKeywordView: View {
                         }
                     }
                 }
-                .scrollContentBackground(.hidden)
                 .environment(\.editMode, .constant(.active))
                 .onAppear {
                     loadSelection()
@@ -50,25 +44,8 @@ struct RegisteringKeywordView: View {
                 .onChange(of: selectionValues) { _ in
                     saveSelection()
                 }
-                
-                Spacer()
-                
-                NavigationLink(destination: ModeSelectView()) {
-                    Button(action: {
-                        // 保存を確定
-                        saveSelection()
-                    }) {
-                        Text("選択完了")
-                            .fontWeight(.medium)
-                            .frame(width: UIScreen.main.bounds.size.width / 6 * 4,
-                                   height: 60)
-                            .background(selectionValues.count != 0 ? Color.blue : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(.infinity)
-                    }
-                    .padding()
-                    .disabled(!selectionValues.isEmpty)
-                }
+                .navigationTitle("キーワード")
+                .toolbarTitleDisplayMode(.inline)
             }
         }
     }

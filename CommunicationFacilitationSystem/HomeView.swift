@@ -15,7 +15,7 @@ struct HomeView: View {
                 .tabItem {
                     Label("プロフィール", systemImage: "person")
                 }
-                .tag(1)
+                .tag(2)
         }
     }
 }

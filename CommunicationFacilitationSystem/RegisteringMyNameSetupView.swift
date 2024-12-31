@@ -9,21 +9,19 @@ struct RegisteringMyNameView: View {
                 .ignoresSafeArea()
             
             VStack(){
-                Text("あなたの名前")
-                    .font(.largeTitle)
-                    .bold()
-                    .padding(.vertical)
-                Text("あなたのニックネームを入力してください\n相手のデバイスに表示されます")
+                Text("あなたの名前を入力してください\n相手のデバイスに表示されます")
                     .padding(.vertical)
                     .multilineTextAlignment(.center)
                 
                 Form {
                     TextField("名前", text: $name)
                 }
+                .navigationTitle("ニックネーム")
+                .toolbarTitleDisplayMode(.inline)
                 
                 Spacer()
                 
-                NavigationLink(destination: RegisteringKeywordView()) {
+                NavigationLink(destination: RegisteringKeywordSetupView()) {
                     Button{
                         
                     } label: {
