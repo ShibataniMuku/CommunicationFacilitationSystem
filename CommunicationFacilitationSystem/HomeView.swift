@@ -16,6 +16,12 @@ struct HomeView: View {
                     Label("プロフィール", systemImage: "person")
                 }
                 .tag(2)
+            
+            UserLogListView()
+                .tabItem {
+                    Label("出会い", systemImage: "clock")
+                }
+                .tag(3)
         }
     }
 }
