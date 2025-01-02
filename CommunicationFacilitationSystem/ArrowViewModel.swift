@@ -98,31 +98,6 @@ final class ArrowViewModel: NSObject, ObservableObject {
         }
         
         browser.invitePeer(peer, to: session, withContext: nil, timeout: 0) // 接続を招待（要求）する
-
-        let tokenData: Data
-        do {
-            tokenData = try NSKeyedArchiver.archivedData(withRootObject: myToken, requiringSecureCoding: true)
-        } catch {
-            print("トークンデータのシリアライズに失敗しました: \(error.localizedDescription)")
-            return
-        }
-
-        guard session.connectedPeers.contains(peer) else {
-            print("\(peer.displayName)はまだ接続されていません")
-            return
-        }
-
-        let tokenMessage = ["type": "discoveryToken", "data": tokenData.base64EncodedString()]
-        
-        print("tokenMessage: \(tokenMessage)")
-        
-        do {
-            let messageData = try JSONSerialization.data(withJSONObject: tokenMessage, options: [])
-            try session.send(messageData, toPeers: [peer], with: .reliable)
-            print("トークンを送信しました: \(peer.displayName)")
-        } catch {
-            print("トークン送信に失敗しました: \(error.localizedDescription)")
-        }
     }
     
     // トークンを送信する
@@ -165,13 +140,13 @@ final class ArrowViewModel: NSObject, ObservableObject {
     }
     
     // ボタン押下を通知する
-    func sendButtonPress(to peer: MCPeerID) {
+    func sendButtonPress(to peer: MCPeerID, _ buttonName: String) {
         guard session.connectedPeers.contains(peer) else {
             print("\(peer.displayName)はまだ接続されていません")
             return
         }
 
-        let buttonPressMessage = ["type": "buttonPress"]
+        let buttonPressMessage = ["type": "buttonPress", "buttonName": buttonName]
         do {
             let messageData = try JSONSerialization.data(withJSONObject: buttonPressMessage, options: [])
             try session.send(messageData, toPeers: [peer], with: .reliable)
@@ -182,7 +157,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
     }
     
     // メッセージを送信する
-    func sendMessage(_ message: String, to peer: MCPeerID) {
+    func sendMessage(to peer: MCPeerID, _ message: String) {
         guard session.connectedPeers.contains(peer) else {
             print("\(peer.displayName)はまだ接続されていません")
             return
@@ -208,7 +183,7 @@ extension ArrowViewModel: MCSessionDelegate {
             case .connected:
                 print("\(peerID.displayName)のMCが接続されました")
                 // 接続完了後にトークンを送信
-                    self.sendToken(peer: peerID)
+                self.sendToken(peer: peerID)
             case .connecting:
                 if self.isAdvertiser{
                     self.isConnectionRequested = true
@@ -242,13 +217,15 @@ extension ArrowViewModel: MCSessionDelegate {
                     }
                     
                 case "buttonPress":
-                    print("ボタン押下通知を受信しました: \(peerID.displayName)")
-                    handleButtonPress(from: peerID)
-
+                    if let receivedButtonName = message["buttonName"] as? String {
+                        print("メッセージを受信しました: \(receivedButtonName)")
+                        handleMessage(from: peerID, receivedButtonName)
+                    }
+                
                 case "textMessage":
                     if let receivedMessage = message["message"] as? String {
                         print("メッセージを受信しました: \(receivedMessage)")
-                        handleMessage(receivedMessage, from: peerID)
+                        handleMessage(from: peerID, receivedMessage)
                     }
 
                 default:
@@ -284,12 +261,12 @@ extension ArrowViewModel: MCSessionDelegate {
         }
     }
 
-    func handleButtonPress(from peer: MCPeerID) {
+    func handleButtonPress(from peer: MCPeerID, _ message: String) {
         // ボタン押下通知の処理
         print("ボタンが押されました: \(peer.displayName)")
     }
 
-    func handleMessage(_ message: String, from peer: MCPeerID) {
+    func handleMessage(from peer: MCPeerID, _ message: String) {
         // メッセージ受信の処理
         print("受信したメッセージ: \(message) from \(peer.displayName)")
     }
