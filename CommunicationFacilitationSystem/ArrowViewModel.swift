@@ -4,10 +4,12 @@ import NearbyInteraction
 
 final class ArrowViewModel: NSObject, ObservableObject {
     @Published var availableDevices: [AvailableDevice] = []
+    @Published var connectingDevice: AvailableDevice?
     @Published var distance: Float?
     @Published var direction: simd_float3?
     @Published var isConnectionRequested = false; // 接続を要求された
     @Published var isAdvertiser = false; // 接続を要求される側
+    @Published var isCancelledMeeting = false; // 会うのをやめる
 
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
@@ -264,6 +266,12 @@ extension ArrowViewModel: MCSessionDelegate {
     func handleButtonPress(from peer: MCPeerID, _ message: String) {
         // ボタン押下通知の処理
         print("ボタンが押されました: \(peer.displayName)")
+        switch message{
+        case "cancelMeeting":
+            isCancelledMeeting = true
+        default:
+            print("未知のボタンタイプを受信しました")
+        }
     }
 
     func handleMessage(from peer: MCPeerID, _ message: String) {

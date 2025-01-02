@@ -41,6 +41,9 @@ struct ArrowView: View {
                                 Button("会いに行く"){
                                     selectedPeer = availableDevice.mcPeerId
                                     viewModel.connectToPeer(availableDevice.mcPeerId)
+                                    
+                                    // 接続しているデバイスとして登録
+                                    viewModel.connectingDevice = availableDevice
                                 }
                                 Button("キャンセル", role: .cancel){
                                     print("キャンセルしました")

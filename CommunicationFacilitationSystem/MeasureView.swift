@@ -13,6 +13,11 @@ struct MeasureView: View {
                         EmptyView()
         }
         
+        NavigationLink(destination: ModeSelectView(),
+                       isActive: $viewModel.isCancelledMeeting) {
+                        EmptyView()
+        }
+        
         ZStack{
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
@@ -67,8 +72,17 @@ struct MeasureView: View {
                     }
                     .confirmationDialog("通信を切断してよろしいですか", isPresented: $isShowDialog, titleVisibility: .visible, actions: {
                         Button("切断する"){
+                            // キャンセルしたことを相手に通知
+                            guard let peerId = viewModel.connectingDevice?.mcPeerId else {
+                                print("利用可能なデバイスがありません")
+                                return
+                            }
+                            viewModel.sendButtonPress(to: peerId, "cancelMeeting")
+                            
                             viewModel.stopSession() // NearbyInteractionを停止
+
                             isActiveModeSelectView = true
+                            print("通信を切断しました")
                         }
                         Button("キャンセル", role: .cancel){
                             
