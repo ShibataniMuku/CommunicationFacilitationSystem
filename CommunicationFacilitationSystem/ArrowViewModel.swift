@@ -107,15 +107,94 @@ final class ArrowViewModel: NSObject, ObservableObject {
             return
         }
 
-        if session.connectedPeers.contains(peer) {
+        guard session.connectedPeers.contains(peer) else {
+            print("\(peer.displayName)はまだ接続されていません")
+            return
+        }
+
+        let tokenMessage = ["type": "discoveryToken", "data": tokenData.base64EncodedString()]
+        
+        print("tokenMessage: \(tokenMessage)")
+        
+        do {
+            let messageData = try JSONSerialization.data(withJSONObject: tokenMessage, options: [])
+            try session.send(messageData, toPeers: [peer], with: .reliable)
+            print("トークンを送信しました: \(peer.displayName)")
+        } catch {
+            print("トークン送信に失敗しました: \(error.localizedDescription)")
+        }
+    }
+    
+    // トークンを送信する
+    func sendToken(peer peerID: MCPeerID){
+        do {
+            guard let myToken = self.niSession?.discoveryToken else {
+                print("Nearby Interactionのトークンが取得できません")
+                return
+            }
+            
+            guard var tokenData = self.myTokenData else {
+                print("Error: myTokenData is nil.")
+                return
+            }
+            
             do {
-                try session.send(tokenData, toPeers: [peer], with: .reliable)
-                print("トークンを送信しました: \(peer.displayName)")
+                tokenData = try NSKeyedArchiver.archivedData(withRootObject: myToken, requiringSecureCoding: true)
+            } catch {
+                print("トークンデータのシリアライズに失敗しました: \(error.localizedDescription)")
+                return
+            }
+
+            guard session.connectedPeers.contains(peerID) else {
+                print("\(peerID.displayName)はまだ接続されていません")
+                return
+            }
+
+            let tokenMessage = ["type": "discoveryToken", "data": tokenData.base64EncodedString()]
+                                
+            do {
+                let messageData = try JSONSerialization.data(withJSONObject: tokenMessage, options: [])
+                try session.send(messageData, toPeers: [peerID], with: .reliable)
+                print("トークンを送信しました: \(peerID.displayName)")
             } catch {
                 print("トークン送信に失敗しました: \(error.localizedDescription)")
             }
-        } else {
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    // ボタン押下を通知する
+    func sendButtonPress(to peer: MCPeerID) {
+        guard session.connectedPeers.contains(peer) else {
             print("\(peer.displayName)はまだ接続されていません")
+            return
+        }
+
+        let buttonPressMessage = ["type": "buttonPress"]
+        do {
+            let messageData = try JSONSerialization.data(withJSONObject: buttonPressMessage, options: [])
+            try session.send(messageData, toPeers: [peer], with: .reliable)
+            print("ボタン押下通知を送信しました: \(peer.displayName)")
+        } catch {
+            print("ボタン押下通知の送信に失敗しました: \(error.localizedDescription)")
+        }
+    }
+    
+    // メッセージを送信する
+    func sendMessage(_ message: String, to peer: MCPeerID) {
+        guard session.connectedPeers.contains(peer) else {
+            print("\(peer.displayName)はまだ接続されていません")
+            return
+        }
+
+        let textMessage = ["type": "textMessage", "message": message]
+        do {
+            let messageData = try JSONSerialization.data(withJSONObject: textMessage, options: [])
+            try session.send(messageData, toPeers: [peer], with: .reliable)
+            print("メッセージを送信しました: \(peer.displayName)")
+        } catch {
+            print("メッセージ送信に失敗しました: \(error.localizedDescription)")
         }
     }
 }
@@ -127,19 +206,9 @@ extension ArrowViewModel: MCSessionDelegate {
         DispatchQueue.main.async {
             switch state {
             case .connected:
-                print("\(peerID.displayName)が接続されました")
-                // 接続完了後にトークン送信可能
-                do {
-                    guard let tokenData = self.myTokenData else {
-                        print("Error: myTokenData is nil.")
-                        return
-                    }
-                    
-                    try session.send(tokenData, toPeers: session.connectedPeers, with: .reliable)
-                } catch {
-                    print(error.localizedDescription)
-                }
-                
+                print("\(peerID.displayName)のMCが接続されました")
+                // 接続完了後にトークンを送信
+                    self.sendToken(peer: peerID)
             case .connecting:
                 if self.isAdvertiser{
                     self.isConnectionRequested = true
@@ -156,18 +225,53 @@ extension ArrowViewModel: MCSessionDelegate {
     // 他のデバイスからデータを受信したときに呼びだされる
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         do {
+            guard let message = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                  let messageType = message["type"] as? String else {
+                print("受信データの解析に失敗しました")
+                return
+            }
+            
+            print(messageType)
+
+            switch messageType {
+                case "discoveryToken":
+                print("NIのトークンを受信しました: \(peerID.displayName)")
+                    if let base64EncodedData = message["data"] as? String,
+                       let tokenData = Data(base64Encoded: base64EncodedData) {
+                        handleTokenData(tokenData, from: peerID)
+                    }
+                    
+                case "buttonPress":
+                    print("ボタン押下通知を受信しました: \(peerID.displayName)")
+                    handleButtonPress(from: peerID)
+
+                case "textMessage":
+                    if let receivedMessage = message["message"] as? String {
+                        print("メッセージを受信しました: \(receivedMessage)")
+                        handleMessage(receivedMessage, from: peerID)
+                    }
+
+                default:
+                    print("未知のメッセージタイプを受信しました: \(messageType)")
+            }
+        } catch {
+            print("受信データの解析に失敗しました: \(error.localizedDescription)")
+        }
+    }
+    
+    func handleTokenData(_ data: Data, from peerID: MCPeerID) {
+        do {
             guard let discoveryToken = try NSKeyedUnarchiver.unarchivedObject(ofClass: NIDiscoveryToken.self, from: data) else {
                 print("トークンのデコードに失敗しました")
                 return
             }
 
-            // 受け取った相手のトークンをもとに，NearbyInteractionセッションを開始
+            // NearbyInteractionのセッションを開始
             connectedPeerToken = discoveryToken
             if let token = connectedPeerToken {
                 let config = NINearbyPeerConfiguration(peerToken: token)
                 config.isCameraAssistanceEnabled = true
                 
-                // 新しいセッションを開始する
                 if niSession == nil {
                     setupNearbyInteraction()
                 }
@@ -178,6 +282,16 @@ extension ArrowViewModel: MCSessionDelegate {
         } catch {
             print("トークンデータの復元に失敗しました: \(error.localizedDescription)")
         }
+    }
+
+    func handleButtonPress(from peer: MCPeerID) {
+        // ボタン押下通知の処理
+        print("ボタンが押されました: \(peer.displayName)")
+    }
+
+    func handleMessage(_ message: String, from peer: MCPeerID) {
+        // メッセージ受信の処理
+        print("受信したメッセージ: \(message) from \(peer.displayName)")
     }
 
 
@@ -240,8 +354,6 @@ extension ArrowViewModel: NISessionDelegate {
         DispatchQueue.main.async {
             self.distance = object.distance
             self.direction = object.direction
-            
-            print("aaaaaa: \(object.horizontalAngle == nil)")
         }
     }
     
