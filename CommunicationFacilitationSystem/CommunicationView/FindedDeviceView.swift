@@ -3,9 +3,7 @@ import SwiftUI
 struct FindedDeviceView: View {
     @ObservedObject var viewModel: ArrowViewModel
     @State private var isShowDialog = false
-    
-    var meetingDistance: Float = 1.0
-    
+        
     var body: some View {
         NavigationLink(destination: ModeSelectView(),
                        isActive: $viewModel.isCancelledMeeting) {

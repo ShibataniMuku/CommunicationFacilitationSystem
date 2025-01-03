@@ -10,7 +10,13 @@ struct CommunicationView: View {
     var body: some View {
         VStack {
             if viewModel.isConnectionRequested{
-                FindedDeviceView(viewModel: viewModel)
+                if let distance = viewModel.distance {
+                    if distance > 0.2 {
+                        FindedDeviceView(viewModel: viewModel)
+                    } else {
+                        CompleteMatchView()
+                    }
+                }
             } else {
                 switch communicationState {
                     case .searchingDevices: // 検索中
@@ -24,15 +30,6 @@ struct CommunicationView: View {
                                 CompleteMatchView()
                             }
                         }
-                        
-                    case .findedDevice: // 待機中
-                    if let distance = viewModel.distance {
-                        if distance > 0.2 {
-                            FindedDeviceView(viewModel: viewModel)
-                        } else {
-                            CompleteMatchView()
-                        }
-                    }
                         
                     default:
                             EmptyView()

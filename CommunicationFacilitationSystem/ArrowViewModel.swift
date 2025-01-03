@@ -279,7 +279,6 @@ extension ArrowViewModel: MCSessionDelegate {
         print("受信したメッセージ: \(message) from \(peer.displayName)")
     }
 
-
     func session(_: MCSession, didReceive _: InputStream, withName _: String, fromPeer _: MCPeerID) {}
     func session(_: MCSession, didStartReceivingResourceWithName _: String, fromPeer _: MCPeerID, with _: Progress) {}
     func session(_: MCSession, didFinishReceivingResourceWithName _: String, fromPeer _: MCPeerID, at _: URL?, withError _: Error?) {}
