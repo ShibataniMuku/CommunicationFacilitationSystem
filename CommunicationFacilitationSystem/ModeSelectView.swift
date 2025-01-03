@@ -53,7 +53,7 @@ struct ModeSelectView: View {
                         RegisteringMyNameSetupView()
                     }
                     
-                    NavigationLink(destination: ArrowView(),
+                    NavigationLink(destination: CommunicationView(),
                                    isActive: $isActiveArrowView) {
                                     EmptyView()
                     }

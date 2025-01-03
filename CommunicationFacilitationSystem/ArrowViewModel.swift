@@ -7,14 +7,14 @@ final class ArrowViewModel: NSObject, ObservableObject {
     @Published var connectingDevice: AvailableDevice?
     @Published var distance: Float?
     @Published var direction: simd_float3?
-    @Published var isConnectionRequested = false; // 接続を要求された
-    @Published var isAdvertiser = false; // 接続を要求される側
-    @Published var isCancelledMeeting = false; // 会うのをやめる
+    @Published var isConnectionRequested: Bool = false // 接続を要求された
+    @Published var isAdvertiser: Bool = false // 接続を要求される側
+    @Published var isCancelledMeeting: Bool = false // 会うのをやめる
 
     private var session: MCSession!
     private var advertiser: MCNearbyServiceAdvertiser!
     private var browser: MCNearbyServiceBrowser!
-    private var niSession: NISession?
+    var niSession: NISession?
     private var connectedPeerToken: NIDiscoveryToken?
     
     var myTokenData: Data?
@@ -88,7 +88,7 @@ final class ArrowViewModel: NSObject, ObservableObject {
     func stopBrowsing() {
         advertiser.stopAdvertisingPeer()
         browser.stopBrowsingForPeers()
-        session.disconnect()
+//        session.disconnect()
     }
 
     // デバイスに接続
@@ -220,8 +220,8 @@ extension ArrowViewModel: MCSessionDelegate {
                     
                 case "buttonPress":
                     if let receivedButtonName = message["buttonName"] as? String {
-                        print("メッセージを受信しました: \(receivedButtonName)")
-                        handleMessage(from: peerID, receivedButtonName)
+                        print("ボタンの押下通知を受信しました: \(receivedButtonName)")
+                        handleButtonPress(from: peerID, receivedButtonName)
                     }
                 
                 case "textMessage":
