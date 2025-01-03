@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>周辺のユーザーを探索するために利用します。</string>
-	<key>NSNearbyInteractionUsageDescription</key>
-	<string>距離と方向を取得するために利用します。</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_browsing-chat._tcp</string>
